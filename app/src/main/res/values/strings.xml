@@ -180,6 +180,9 @@
     <string name="viewer_undecodable_message">Your phone can\'t display this image format, or it\'s too large to open safely.</string>
     <string name="viewer_refused_title">This file can\'t be opened</string>
     <string name="viewer_refused_message">It stays locked in your vault. Open the vault to see its details.</string>
+    <string name="viewer_page_of">Page %1$d of %2$d</string>
+    <string name="viewer_pdf_unreadable_title">This PDF can\'t be opened</string>
+    <string name="viewer_pdf_unreadable_message">It may be damaged, or protected with a password.</string>
     <string name="viewer_missing_title">This file is gone</string>
     <string name="viewer_missing_message">It may have been deleted.</string>
 

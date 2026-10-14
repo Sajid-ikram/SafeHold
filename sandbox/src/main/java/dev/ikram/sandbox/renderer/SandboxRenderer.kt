@@ -27,6 +27,11 @@ class RendererCrashedException(message: String, cause: Throwable? = null) : Exce
  * itself.
  */
 class SandboxRenderer(private val context: Context) {
+    private companion object {
+        /** More pages than any real document; a renderer claiming this many is misbehaving. */
+        const val MAX_PDF_PAGES = 100_000
+    }
+
     private val mutex = Mutex()
     private val executor = Executors.newCachedThreadPool()
 
@@ -41,13 +46,31 @@ class SandboxRenderer(private val context: Context) {
      */
     suspend fun decodeImage(file: File, maxWidth: Int, maxHeight: Int): Bitmap? {
         val result = call { renderer ->
-            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
-                renderer.decodeImage(fd, maxWidth, maxHeight)
-            }
+            open(file).use { fd -> renderer.decodeImage(fd, maxWidth, maxHeight) }
         } ?: return null
         return SharedMemoryBitmap.toBitmap(result, maxWidth, maxHeight)
             ?: throw RendererCrashedException("The renderer returned malformed pixels")
     }
+
+    /** Number of pages, or null when [file] is not a PDF the platform can open (damaged, encrypted). */
+    suspend fun pdfPageCount(file: File): Int? {
+        val count = call { renderer -> open(file).use { fd -> renderer.pdfPageCount(fd) } }
+        if (count > MAX_PDF_PAGES) throw RendererCrashedException("The renderer reported $count pages")
+        return count.takeIf { it >= 0 }
+    }
+
+    /** One page, [width] pixels wide (narrower if the page is very tall). Null if it cannot be drawn. */
+    suspend fun renderPdfPage(file: File, pageIndex: Int, width: Int): Bitmap? {
+        require(pageIndex >= 0 && width in 1..RendererLimits.MAX_OUTPUT_SIDE) { "Page or width out of range" }
+        val result = call { renderer -> open(file).use { fd -> renderer.renderPdfPage(fd, pageIndex, width) } }
+            ?: return null
+        return SharedMemoryBitmap.toBitmap(result, width, RendererLimits.MAX_OUTPUT_SIDE)
+            ?: throw RendererCrashedException("The renderer returned a malformed page")
+    }
+
+    /** Vault files are only ever handed over read only. */
+    private fun open(file: File): ParcelFileDescriptor =
+        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
 
     /**
      * A renderer that died before or during a call gets one fresh retry: it may have died

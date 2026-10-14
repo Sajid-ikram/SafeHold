@@ -20,6 +20,7 @@ import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.feature.viewer.components.UnsafeFileMessage
 import dev.ikram.sandbox.feature.viewer.components.ViewerMessage
 import dev.ikram.sandbox.feature.viewer.image.ImageViewerRoute
+import dev.ikram.sandbox.feature.viewer.pdf.PdfViewerRoute
 
 /**
  * Picks the built in viewer for a vault file from its category, and refuses blocked,
@@ -45,6 +46,8 @@ fun ViewerRouter(
                 file.openFailed -> Plain(onBack, modifier) { UnsafeFileMessage() }
 
                 file.category == FileCategory.IMAGE -> ImageViewerRoute(onBack = onBack, modifier = modifier)
+
+                file.category == FileCategory.PDF -> PdfViewerRoute(onBack = onBack, modifier = modifier)
 
                 else -> Plain(onBack, modifier) {
                     ViewerMessage(

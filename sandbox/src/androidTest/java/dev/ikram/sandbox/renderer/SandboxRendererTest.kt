@@ -2,6 +2,8 @@ package dev.ikram.sandbox.renderer
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -66,6 +68,41 @@ class SandboxRendererTest {
     fun theRendererSurvivesManyCalls() = runBlocking {
         val image = png(64, 64)
         repeat(20) { assertEquals(64, renderer.decodeImage(image, 128, 128)!!.width) }
+    }
+
+    private fun pdf(pages: Int): File = file("doc.pdf") { out ->
+        val document = PdfDocument()
+        repeat(pages) { index ->
+            val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, index + 1).create())
+            page.canvas.drawRect(10f, 10f, 60f, 60f, Paint().apply { color = Color.BLACK })
+            document.finishPage(page)
+        }
+        document.writeTo(out)
+        document.close()
+    }
+
+    @Test
+    fun countsPdfPages() = runBlocking {
+        assertEquals(3, renderer.pdfPageCount(pdf(3)))
+    }
+
+    @Test
+    fun rendersAPdfPageOnWhiteAtTheRequestedWidth() = runBlocking {
+        val page = renderer.renderPdfPage(pdf(2), 1, 600)!!
+        assertEquals(600, page.width)
+        assertEquals(800, page.height)
+        assertEquals(Color.WHITE, page.getPixel(590, 790))
+        assertEquals(Color.BLACK, page.getPixel(40, 40))
+    }
+
+    @Test
+    fun pagesPastTheEndAreNull() = runBlocking {
+        assertNull(renderer.renderPdfPage(pdf(1), 5, 600))
+    }
+
+    @Test
+    fun notAPdfHasNoPages() = runBlocking {
+        assertNull(renderer.pdfPageCount(file("fake.pdf", "%PDF-1.7 but not really".toByteArray())))
     }
 
     /** PNG signature and an IHDR chunk with a valid CRC, then nothing. */
