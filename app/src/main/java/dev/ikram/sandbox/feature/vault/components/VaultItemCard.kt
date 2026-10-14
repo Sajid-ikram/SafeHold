@@ -1,5 +1,6 @@
 package dev.ikram.sandbox.feature.vault.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,14 +37,31 @@ private val CardShape = RoundedCornerShape(16.dp)
 
 /** Grid view card. Real previews arrive with the isolated renderer; until then, the type icon. */
 @Composable
-fun VaultItemCard(file: VaultFile, dayText: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun VaultItemCard(
+    file: VaultFile,
+    thumbnail: ImageBitmap?,
+    dayText: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .clip(CardShape)
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickable(onClick = onClick),
     ) {
-        CardPreview(file.category, file.showsMismatch)
+        if (thumbnail != null) {
+            Image(
+                bitmap = thumbnail,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(112.dp),
+            )
+        } else {
+            CardPreview(file.category, file.showsMismatch)
+        }
         Column(
             modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(3.dp),

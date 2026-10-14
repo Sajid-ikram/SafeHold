@@ -62,6 +62,8 @@ fun FileDetailsSheet(
     onDelete: () -> Unit,
     onHashCopied: () -> Unit,
     onDismiss: () -> Unit,
+    // Off inside a viewer, where the file is already open.
+    showOpen: Boolean = true,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -78,7 +80,7 @@ fun FileDetailsSheet(
             Header(file)
             Notice(file)
             FactsCard(file, onHashCopied)
-            Actions(file, onOpen, onShare, onDelete)
+            Actions(file, showOpen, onOpen, onShare, onDelete)
         }
     }
 }
@@ -223,7 +225,13 @@ private fun HashRow(sha256: String, onHashCopied: () -> Unit) {
 }
 
 @Composable
-private fun Actions(file: VaultFile, onOpen: () -> Unit, onShare: () -> Unit, onDelete: () -> Unit) {
+private fun Actions(
+    file: VaultFile,
+    showOpen: Boolean,
+    onOpen: () -> Unit,
+    onShare: () -> Unit,
+    onDelete: () -> Unit,
+) {
     val rules = TypePolicy.rulesFor(file.category)
     val canOpen = rules.canOpen && !file.openFailed
     val canShare = rules.canShareOriginal || rules.canSafeCopy
@@ -232,8 +240,10 @@ private fun Actions(file: VaultFile, onOpen: () -> Unit, onShare: () -> Unit, on
         val buttonModifier = Modifier
             .weight(1f)
             .height(48.dp)
-        Button(onClick = onOpen, enabled = canOpen, modifier = buttonModifier) {
-            ButtonContent(if (canOpen) SandboxIcons.Open else SandboxIcons.Lock, R.string.details_open)
+        if (showOpen) {
+            Button(onClick = onOpen, enabled = canOpen, modifier = buttonModifier) {
+                ButtonContent(if (canOpen) SandboxIcons.Open else SandboxIcons.Lock, R.string.details_open)
+            }
         }
         FilledTonalButton(onClick = onShare, enabled = canShare, modifier = buttonModifier) {
             ButtonContent(if (canShare) SandboxIcons.Share else SandboxIcons.Lock, R.string.details_share)

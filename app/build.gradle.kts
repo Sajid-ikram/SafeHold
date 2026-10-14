@@ -70,7 +70,7 @@ kotlin {
 }
 
 /**
- * Golden rules 1 and 8, enforced on the MERGED manifest: libraries add permissions
+ * Golden rules 1, 6 and 8, enforced on the MERGED manifest: libraries add permissions
  * through manifest merging, which never shows up in our own AndroidManifest.xml.
  */
 abstract class VerifyManifestTask : DefaultTask() {
@@ -107,6 +107,9 @@ abstract class VerifyManifestTask : DefaultTask() {
         val extra = requested.filterNot { it in allowed }
 
         val application = document.getElementsByTagName("application").item(0) as Element
+        val services = document.getElementsByTagName("service")
+        val renderer = (0 until services.length).map { services.item(it) as Element }
+            .firstOrNull { it.getAttributeNS(androidNs, "name").endsWith(".RendererService") }
         val problems = buildList {
             if (extra.isNotEmpty()) add("Permissions outside the allowed set: ${extra.joinToString()}")
             if (application.getAttributeNS(androidNs, "allowBackup") != "false") {
@@ -114,6 +117,19 @@ abstract class VerifyManifestTask : DefaultTask() {
             }
             if (application.getAttributeNS(androidNs, "dataExtractionRules").isEmpty()) {
                 add("android:dataExtractionRules must be set")
+            }
+            // Golden rule 6: image and PDF parsing only ever happens in this process.
+            when {
+                renderer == null -> add("RendererService is missing")
+
+                renderer.getAttributeNS(androidNs, "isolatedProcess") != "true" ->
+                    add("RendererService must set android:isolatedProcess=\"true\"")
+
+                renderer.getAttributeNS(androidNs, "exported") != "false" ->
+                    add("RendererService must not be exported")
+
+                renderer.getAttributeNS(androidNs, "process") != ":renderer" ->
+                    add("RendererService must run in the :renderer process")
             }
         }
         check(problems.isEmpty()) {

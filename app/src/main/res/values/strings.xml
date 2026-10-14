@@ -162,8 +162,26 @@
     <string name="explainer_title">How protection works</string>
     <string name="explainer_placeholder">The full explainer arrives in build phase 10.</string>
 
-    <string name="viewer_title">Viewer</string>
-    <string name="viewer_placeholder">Built in viewers arrive in build phases 5 to 7.</string>
+    <string name="viewer_placeholder">This viewer arrives in a later build phase.</string>
+    <string name="viewer_opened_in_sandbox">Opened in sandbox</string>
+    <string name="viewer_share">Share</string>
+    <string name="viewer_details">File details</string>
+    <string name="viewer_previous">Previous image</string>
+    <string name="viewer_next">Next image</string>
+    <string name="viewer_zoom">%1$.1f×</string>
+    <string name="viewer_hint">Pinch to zoom · Swipe for more</string>
+    <plurals name="viewer_image_count">
+        <item quantity="one">%1$d of %2$d image</item>
+        <item quantity="other">%1$d of %2$d images</item>
+    </plurals>
+    <string name="viewer_unsafe_title">This file couldn\'t be opened safely</string>
+    <string name="viewer_unsafe_message">SafeHold stopped the viewer to protect your phone. The file stays locked in your vault.</string>
+    <string name="viewer_undecodable_title">This image can\'t be shown</string>
+    <string name="viewer_undecodable_message">Your phone can\'t display this image format, or it\'s too large to open safely.</string>
+    <string name="viewer_refused_title">This file can\'t be opened</string>
+    <string name="viewer_refused_message">It stays locked in your vault. Open the vault to see its details.</string>
+    <string name="viewer_missing_title">This file is gone</string>
+    <string name="viewer_missing_message">It may have been deleted.</string>
 
     <string name="action_back">Back</string>
 </resources>

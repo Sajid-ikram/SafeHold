@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
@@ -315,11 +316,11 @@ private fun VaultList(state: VaultUiState, onEvent: (VaultEvent) -> Unit) {
             items(state.downloads, key = { "download-${it.downloadId}" }) { download ->
                 DownloadRow(download, onCancel = { onEvent(VaultEvent.CancelDownload(download.downloadId)) })
             }
-            today?.let { fileRows(it, onEvent) }
+            today?.let { fileRows(it, state.thumbnails, onEvent) }
         }
         others.forEach { section ->
             sectionHeader(section.label, state.today)
-            fileRows(section, onEvent)
+            fileRows(section, state.thumbnails, onEvent)
         }
         if (state.sections.isEmpty() && state.downloads.isEmpty()) {
             item { VaultNoMatch() }
@@ -338,9 +339,13 @@ private fun LazyListScope.sectionHeader(label: DayLabel, today: LocalDate) {
     }
 }
 
-private fun LazyListScope.fileRows(section: VaultSection, onEvent: (VaultEvent) -> Unit) {
+private fun LazyListScope.fileRows(
+    section: VaultSection,
+    thumbnails: Map<String, ImageBitmap>,
+    onEvent: (VaultEvent) -> Unit,
+) {
     items(section.files, key = { it.id }) { file ->
-        VaultItemRow(file, onClick = { onEvent(VaultEvent.FileTapped(file.id)) })
+        VaultItemRow(file, thumbnails[file.id], onClick = { onEvent(VaultEvent.FileTapped(file.id)) })
     }
 }
 
@@ -360,9 +365,12 @@ private fun VaultGrid(state: VaultUiState, onEvent: (VaultEvent) -> Unit) {
     ) {
         items(state.downloads, key = { "download-${it.downloadId}" }) { DownloadCard(it) }
         items(files, key = { it.first.id }) { (file, label) ->
-            VaultItemCard(file, dayText = label.text(state.today), onClick = {
-                onEvent(VaultEvent.FileTapped(file.id))
-            })
+            VaultItemCard(
+                file = file,
+                thumbnail = state.thumbnails[file.id],
+                dayText = label.text(state.today),
+                onClick = { onEvent(VaultEvent.FileTapped(file.id)) },
+            )
         }
     }
 }

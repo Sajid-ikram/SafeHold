@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!--
+            Golden rule 6. Every image and PDF is parsed here, in a separate process that
+            runs with no permissions, no network and no file access of its own. It only
+            ever sees file descriptors the app hands it, opened read only.
+        -->
+        <service
+            android:name=".RendererService"
+            android:exported="false"
+            android:isolatedProcess="true"
+            android:process=":renderer" />
+    </application>
+</manifest>

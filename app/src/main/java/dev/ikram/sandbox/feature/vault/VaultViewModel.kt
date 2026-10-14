@@ -1,5 +1,6 @@
 package dev.ikram.sandbox.feature.vault
 
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import dev.ikram.sandbox.core.filetype.TypePolicy
 import dev.ikram.sandbox.core.model.DownloadState
 import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.core.model.VaultFile
+import dev.ikram.sandbox.feature.viewer.image.ThumbnailSource
 import java.time.Clock
 import java.time.LocalDate
 import javax.inject.Inject
@@ -30,8 +32,10 @@ class VaultViewModel @Inject constructor(
     private val downloadQueue: DownloadQueue,
     private val newFiles: NewFilesCounter,
     private val clock: Clock,
+    private val thumbnailSource: ThumbnailSource,
 ) : ViewModel() {
     private val controls = MutableStateFlow(Controls())
+    private val thumbnails = MutableStateFlow<Map<String, ImageBitmap>>(emptyMap())
     private val effectChannel = Channel<VaultEffect>(Channel.BUFFERED)
 
     /** Null until the first read from the database. */
@@ -41,10 +45,23 @@ class VaultViewModel @Inject constructor(
         null,
     )
 
-    val uiState: StateFlow<VaultUiState> = combine(files, downloadQueue.downloads, controls, ::build)
+    val uiState: StateFlow<VaultUiState> = combine(files, downloadQueue.downloads, controls, thumbnails, ::build)
         .stateIn(viewModelScope, SharingStarted.Eagerly, VaultUiState(today = LocalDate.now(clock)))
 
     val effects: Flow<VaultEffect> = effectChannel.receiveAsFlow()
+
+    init {
+        // Previews come from the isolated renderer, one at a time, newest files first.
+        viewModelScope.launch {
+            files.collect { list ->
+                list.orEmpty()
+                    .filter { it.category == FileCategory.IMAGE && !it.openFailed && it.id !in thumbnails.value }
+                    .forEach { file ->
+                        thumbnailSource.thumbnail(file)?.let { image -> thumbnails.update { it + (file.id to image) } }
+                    }
+            }
+        }
+    }
 
     fun onEvent(event: VaultEvent) {
         when (event) {
@@ -110,7 +127,12 @@ class VaultViewModel @Inject constructor(
 
     private fun find(fileId: String): VaultFile? = files.value?.firstOrNull { it.id == fileId }
 
-    private fun build(files: List<VaultFile>?, downloads: List<DownloadState>, controls: Controls): VaultUiState {
+    private fun build(
+        files: List<VaultFile>?,
+        downloads: List<DownloadState>,
+        controls: Controls,
+        thumbnails: Map<String, ImageBitmap>,
+    ): VaultUiState {
         val today = LocalDate.now(clock)
         if (files == null) return VaultUiState(today = today, query = controls.query, filter = controls.filter)
         val running = downloads.filterIsInstance<DownloadState.Running>()
@@ -133,6 +155,7 @@ class VaultViewModel @Inject constructor(
             mismatch = byId(controls.mismatchId),
             confirmDelete = byId(controls.deleteId),
             message = controls.message,
+            thumbnails = thumbnails,
         )
     }
 

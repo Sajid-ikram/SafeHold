@@ -40,7 +40,7 @@ class VaultViewModelTest {
     private val newFiles = NewFilesCounter()
     private val storage by lazy { VaultStorage(folder.newFolder("files")) }
     private val viewModel by lazy {
-        VaultViewModel(VaultRepository(dao, storage, Dispatchers.Unconfined), queue, newFiles, clock)
+        VaultViewModel(VaultRepository(dao, storage, Dispatchers.Unconfined), queue, newFiles, clock) { null }
     }
     private val state get() = viewModel.uiState.value
 

@@ -1,5 +1,6 @@
 package dev.ikram.sandbox.feature.vault.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,7 +36,7 @@ import dev.ikram.sandbox.feature.vault.showsMismatch
 import dev.ikram.sandbox.util.Formatters
 
 @Composable
-fun VaultItemRow(file: VaultFile, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun VaultItemRow(file: VaultFile, thumbnail: ImageBitmap?, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -43,7 +46,18 @@ fun VaultItemRow(file: VaultFile, onClick: () -> Unit, modifier: Modifier = Modi
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        FileTypeIcon(category = file.category, isMismatch = file.showsMismatch)
+        if (thumbnail != null) {
+            Image(
+                bitmap = thumbnail,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+            )
+        } else {
+            FileTypeIcon(category = file.category, isMismatch = file.showsMismatch)
+        }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(
                 text = file.displayName,

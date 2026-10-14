@@ -1,5 +1,6 @@
 package dev.ikram.sandbox.feature.vault
 
+import androidx.compose.ui.graphics.ImageBitmap
 import dev.ikram.sandbox.core.model.DownloadState
 import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.core.model.VaultFile
@@ -58,6 +59,8 @@ data class VaultUiState(
     /** The file waiting for delete confirmation. */
     val confirmDelete: VaultFile? = null,
     val message: VaultMessage? = null,
+    /** Previews of image files, decoded by the isolated renderer. */
+    val thumbnails: Map<String, ImageBitmap> = emptyMap(),
 )
 
 sealed interface VaultEvent {
