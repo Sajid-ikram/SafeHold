@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SafeHold</string>
+
+    <string name="nav_browser">Browser</string>
+    <string name="nav_vault">Vault</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="browser_placeholder_title">Browser</string>
+    <string name="browser_placeholder_message">The hardened browser arrives in build phase 3.</string>
+
+    <string name="vault_title">Vault</string>
+    <string name="vault_empty_title">Your vault is empty</string>
+    <string name="vault_empty_message">Files you download while browsing are kept here, locked away from the rest of your phone.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_how_protection_works">How protection works</string>
+    <string name="settings_how_protection_works_summary">A simple look at what SafeHold does</string>
+
+    <string name="onboarding_title">Browse the web as usual</string>
+    <string name="onboarding_message">Search, read and download files like you would in any other browser. SafeHold quietly handles the rest.</string>
+    <string name="onboarding_start">Start browsing</string>
+
+    <string name="explainer_title">How protection works</string>
+    <string name="explainer_placeholder">The full explainer arrives in build phase 10.</string>
+
+    <string name="viewer_title">Viewer</string>
+    <string name="viewer_placeholder">Built in viewers arrive in build phases 5 to 7.</string>
+
+    <string name="action_back">Back</string>
+</resources>
