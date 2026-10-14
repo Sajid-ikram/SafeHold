@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
@@ -17,8 +18,10 @@ import dev.ikram.sandbox.core.designsystem.theme.SandboxTheme
 import dev.ikram.sandbox.core.model.FileCategory
 
 /**
- * The square file thumbnail from the design. Blocked and unknown files get the red
- * container; a type mismatch gets the amber one, whatever the category.
+ * The square file thumbnail from the design. Executables get the red container and a
+ * type mismatch the amber one; everything else, unknown files included, is neutral.
+ * [neutralBackground] replaces the neutral container where the icon sits on a card of
+ * the same colour.
  */
 @Composable
 fun FileTypeIcon(
@@ -26,15 +29,13 @@ fun FileTypeIcon(
     modifier: Modifier = Modifier,
     isMismatch: Boolean = false,
     size: FileTypeIconSize = FileTypeIconSize.Regular,
+    neutralBackground: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
 ) {
     val semantic = SandboxTheme.semanticColors
     val (container, content) = when {
         isMismatch -> semantic.cautionContainer to semantic.onCautionContainer
-
-        category == FileCategory.BLOCKED || category == FileCategory.UNKNOWN ->
-            semantic.blockedContainer to semantic.onBlockedContainer
-
-        else -> MaterialTheme.colorScheme.surfaceContainerHigh to MaterialTheme.colorScheme.onSurfaceVariant
+        category == FileCategory.BLOCKED -> semantic.blockedContainer to semantic.onBlockedContainer
+        else -> neutralBackground to MaterialTheme.colorScheme.onSurfaceVariant
     }
     Box(
         modifier = modifier

@@ -1,8 +1,10 @@
 package dev.ikram.sandbox.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,11 +47,13 @@ private enum class TopLevelDestination(
     SETTINGS(Routes.Settings, Routes.Settings::class, SandboxIcons.Settings, R.string.nav_settings),
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SandboxNavHost(navController: NavHostController = rememberNavController()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
-    val showBottomBar = TopLevelDestination.entries.any { currentDestination.isOn(it) }
+    // Hidden while typing, so the screen above can shrink to fit beside the keyboard.
+    val showBottomBar = TopLevelDestination.entries.any { currentDestination.isOn(it) } && !WindowInsets.isImeVisible
 
     Scaffold(
         // Each screen owns its insets: viewers draw edge to edge, tabs get a top bar.
@@ -73,7 +77,9 @@ fun SandboxNavHost(navController: NavHostController = rememberNavController()) {
             composable<Routes.Onboarding> {
                 OnboardingRoute(onDone = { navController.navigateToTopLevel(Routes.Browser) })
             }
-            composable<Routes.Browser> { BrowserRoute() }
+            composable<Routes.Browser> {
+                BrowserRoute(onOpenVault = { navController.navigateToTopLevel(Routes.Vault) })
+            }
             composable<Routes.Vault> {
                 VaultRoute(onOpenFile = { fileId -> navController.navigate(Routes.Viewer(fileId)) })
             }

@@ -6,8 +6,48 @@
     <string name="nav_vault">Vault</string>
     <string name="nav_settings">Settings</string>
 
-    <string name="browser_placeholder_title">Browser</string>
-    <string name="browser_placeholder_message">The hardened browser arrives in build phase 3.</string>
+    <string name="browser_address_hint">Search or type a site</string>
+    <string name="browser_back">Back</string>
+    <string name="browser_forward">Forward</string>
+    <string name="browser_reload">Refresh</string>
+    <string name="browser_stop">Stop loading</string>
+    <string name="browser_secure">Secure connection</string>
+    <string name="browser_not_secure">Not secure</string>
+    <plurals name="browser_tab_count">
+        <item quantity="one">%d open tab</item>
+        <item quantity="other">%d open tabs</item>
+    </plurals>
+    <string name="browser_open_vault">Vault</string>
+    <string name="browser_new_tab_title">Browse the web as usual</string>
+    <string name="browser_new_tab_message">Search or type a web address. Anything you download goes straight into your vault.</string>
+    <string name="browser_crashed_title">This page stopped working</string>
+    <string name="browser_crashed_message">SafeHold closed it so the rest of the app keeps running.</string>
+    <string name="browser_crashed_reload">Reload page</string>
+    <string name="browser_message_navigation_blocked">Blocked a link that tried to leave the browser</string>
+    <string name="browser_message_download_unsupported">This download type isn\'t supported yet</string>
+    <string name="browser_message_saving_not_ready">Saving to the vault arrives in the next build phase</string>
+
+    <string name="tabs_title">Tabs</string>
+    <string name="tabs_new">New tab</string>
+    <string name="tabs_close">Close tab</string>
+    <string name="tabs_untitled">New tab</string>
+
+    <string name="download_title">Download this file?</string>
+    <string name="download_title_blocked">This file can\'t be opened</string>
+    <string name="download_type_unknown">File</string>
+    <string name="download_size_unknown">Size unknown</string>
+    <string name="download_type_and_size">%1$s · %2$s</string>
+    <string name="download_from">From %1$s</string>
+    <string name="download_vault_title">Will be saved to your vault</string>
+    <string name="download_vault_body">It opens only inside SafeHold and never touches your phone\'s storage.</string>
+    <string name="download_vault_body_unknown">SafeHold checks what it really is once it arrives. It never touches your phone\'s storage.</string>
+    <string name="download_blocked_app_title">Apps can\'t be installed from SafeHold</string>
+    <string name="download_blocked_program_title">Programs and scripts can\'t be run from SafeHold</string>
+    <string name="download_blocked_body">If you save it, it stays locked in your vault. It can never be opened, installed or shared.</string>
+    <string name="download_cancel">Cancel</string>
+    <string name="download_save">Save to vault</string>
+    <string name="download_save_locked">Save locked</string>
+    <string name="download_cancel_download">Cancel download</string>
 
     <string name="vault_title">Vault</string>
     <string name="vault_empty_title">Your vault is empty</string>

@@ -11,8 +11,8 @@ plugins {
 // ktlint and detekt run from their CLIs instead of their Gradle plugins. The CLIs
 // do not depend on AGP or Kotlin Gradle plugin internals, so an AGP or Gradle
 // upgrade can never break the static checks.
-val ktlint: Configuration by configurations.creating
-val detekt: Configuration by configurations.creating
+val ktlint: Configuration = configurations.create("ktlint")
+val detekt: Configuration = configurations.create("detekt")
 
 dependencies {
     ktlint(libs.ktlint.cli) {

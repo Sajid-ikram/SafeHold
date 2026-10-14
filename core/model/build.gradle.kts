@@ -6,14 +6,18 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
+// This code runs inside the Android app, where lint's NewApi check does not reach a
+// plain Kotlin module. Compiling against the Java 8 API (close to what Android 9, our
+// minSdk, provides) turns a call to a newer JDK method into a build error.
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
+        jvmTarget = JvmTarget.JVM_1_8
+        freeCompilerArgs.add("-Xjdk-release=1.8")
     }
 }
 

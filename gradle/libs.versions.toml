@@ -14,7 +14,7 @@ activityCompose = "1.13.0"
 lifecycle = "2.11.0"
 composeBom = "2026.09.00"
 navigation = "2.10.2"
-hiltNavigationCompose = "1.4.0"
+androidxHilt = "1.4.0"
 
 kotlinxSerialization = "1.11.0"
 coroutines = "1.11.0"
@@ -49,7 +49,7 @@ androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
-androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-hilt-lifecycle-viewmodel-compose = { module = "androidx.hilt:hilt-lifecycle-viewmodel-compose", version.ref = "androidxHilt" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
