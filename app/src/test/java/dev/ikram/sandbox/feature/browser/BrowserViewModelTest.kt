@@ -2,8 +2,11 @@ package dev.ikram.sandbox.feature.browser
 
 import app.cash.turbine.test
 import dev.ikram.sandbox.MainDispatcherRule
+import dev.ikram.sandbox.core.data.download.NewFilesCounter
 import dev.ikram.sandbox.core.model.DownloadRequest
+import dev.ikram.sandbox.core.model.DownloadState
 import dev.ikram.sandbox.core.model.FileCategory
+import dev.ikram.sandbox.fakes.FakeDownloadQueue
 import dev.ikram.sandbox.feature.browser.web.WebCommand
 import dev.ikram.sandbox.feature.browser.web.WebEvent
 import kotlinx.coroutines.test.runTest
@@ -18,7 +21,9 @@ class BrowserViewModelTest {
     @get:Rule val mainRule = MainDispatcherRule()
 
     // Lazy: the rule must install the test Main dispatcher before viewModelScope starts.
-    private val viewModel by lazy { BrowserViewModel() }
+    private val queue = FakeDownloadQueue()
+    private val newFiles = NewFilesCounter()
+    private val viewModel by lazy { BrowserViewModel(queue, newFiles) }
     private val state get() = viewModel.uiState.value
     private val tabId get() = state.activeTabId
 
@@ -137,6 +142,33 @@ class BrowserViewModelTest {
         viewModel.onEvent(BrowserEvent.SubmitAddress("https://x.example/a.pdf"))
         web(WebEvent.NavigationSettled(null, canGoBack = false, canGoForward = false))
         assertNull(state.activeTab.url)
+    }
+
+    @Test
+    fun confirmingStartsTheDownloadIntoTheVault() {
+        val request = download("https://harbourlight.org/files/map.pdf")
+        web(WebEvent.DownloadRequested(request))
+        viewModel.onEvent(BrowserEvent.ConfirmDownload)
+        assertNull(state.downloadPrompt)
+        assertEquals(listOf(request), queue.enqueued)
+        assertTrue(state.download is DownloadState.Running)
+    }
+
+    @Test
+    fun finishedDownloadCardIsDismissedThroughTheQueue() {
+        queue.emit(DownloadState.Completed("d1", "map.pdf", "d1", FileCategory.PDF))
+        assertTrue(state.download is DownloadState.Completed)
+        viewModel.onEvent(BrowserEvent.DownloadStatusDismissed("d1"))
+        assertNull(state.download)
+    }
+
+    @Test
+    fun newFilesAreCountedForTheVaultBadge() {
+        newFiles.increment()
+        newFiles.increment()
+        assertEquals(2, state.newFiles)
+        newFiles.setVaultVisible(true)
+        assertEquals(0, state.newFiles)
     }
 
     @Test

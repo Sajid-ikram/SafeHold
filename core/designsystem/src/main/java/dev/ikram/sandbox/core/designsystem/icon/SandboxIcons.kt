@@ -68,6 +68,9 @@ object SandboxIcons {
         icon("Delete", "M4 7h16M10 11v6M14 11v6M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13M9 7V4h6v3")
     }
     val Download by lazy { icon("Download", "M12 4v11M7 10l5 5 5-5M5 20h14") }
+    val Copy by lazy {
+        icon("Copy", rect(8f, 8f, 12f, 12f, 2f), "M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2")
+    }
     val Clock by lazy { icon("Clock", circle(12f, 12f, 9f), "M12 7v5l3 2") }
     val Info by lazy { icon("Info", circle(12f, 12f, 9f), "M12 11v5M12 8h.01") }
     val Warning by lazy { icon("Warning", "M12 3 2 20h20L12 3ZM12 10v4M12 17h.01") }

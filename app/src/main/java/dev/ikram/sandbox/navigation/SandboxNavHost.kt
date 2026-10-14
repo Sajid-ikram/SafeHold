@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,6 +18,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -29,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.ikram.sandbox.R
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
 import dev.ikram.sandbox.feature.browser.BrowserRoute
+import dev.ikram.sandbox.feature.browser.VaultIconWithBadge
 import dev.ikram.sandbox.feature.explainer.HowProtectionWorksRoute
 import dev.ikram.sandbox.feature.onboarding.OnboardingRoute
 import dev.ikram.sandbox.feature.settings.SettingsRoute
@@ -49,7 +53,11 @@ private enum class TopLevelDestination(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SandboxNavHost(navController: NavHostController = rememberNavController()) {
+fun SandboxNavHost(
+    navController: NavHostController = rememberNavController(),
+    shell: ShellViewModel = hiltViewModel(),
+) {
+    val newFiles by shell.newFiles.collectAsStateWithLifecycle()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     // Hidden while typing, so the screen above can shrink to fit beside the keyboard.
@@ -62,6 +70,7 @@ fun SandboxNavHost(navController: NavHostController = rememberNavController()) {
             if (showBottomBar) {
                 SandboxBottomBar(
                     currentDestination = currentDestination,
+                    newFiles = newFiles,
                     onNavigate = { navController.navigateToTopLevel(it.route) },
                 )
             }
@@ -81,7 +90,10 @@ fun SandboxNavHost(navController: NavHostController = rememberNavController()) {
                 BrowserRoute(onOpenVault = { navController.navigateToTopLevel(Routes.Vault) })
             }
             composable<Routes.Vault> {
-                VaultRoute(onOpenFile = { fileId -> navController.navigate(Routes.Viewer(fileId)) })
+                VaultRoute(
+                    onOpenFile = { fileId -> navController.navigate(Routes.Viewer(fileId)) },
+                    onStartBrowsing = { navController.navigateToTopLevel(Routes.Browser) },
+                )
             }
             composable<Routes.Settings> {
                 SettingsRoute(onHowProtectionWorks = { navController.navigate(Routes.HowProtectionWorks) })
@@ -97,13 +109,23 @@ fun SandboxNavHost(navController: NavHostController = rememberNavController()) {
 }
 
 @Composable
-private fun SandboxBottomBar(currentDestination: NavDestination?, onNavigate: (TopLevelDestination) -> Unit) {
+private fun SandboxBottomBar(
+    currentDestination: NavDestination?,
+    newFiles: Int,
+    onNavigate: (TopLevelDestination) -> Unit,
+) {
     NavigationBar {
         TopLevelDestination.entries.forEach { destination ->
             NavigationBarItem(
                 selected = currentDestination.isOn(destination),
                 onClick = { onNavigate(destination) },
-                icon = { Icon(destination.icon, contentDescription = null) },
+                icon = {
+                    if (destination == TopLevelDestination.VAULT) {
+                        VaultIconWithBadge(newFiles, contentDescription = null, tint = LocalContentColor.current)
+                    } else {
+                        Icon(destination.icon, contentDescription = null)
+                    }
+                },
                 label = { Text(stringResource(destination.label), style = MaterialTheme.typography.labelMedium) },
             )
         }

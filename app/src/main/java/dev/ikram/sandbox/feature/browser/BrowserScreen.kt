@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -43,13 +46,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.ikram.sandbox.R
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
 import dev.ikram.sandbox.core.designsystem.theme.SandboxTheme
+import dev.ikram.sandbox.core.model.DownloadState
 import dev.ikram.sandbox.feature.browser.components.AddressBar
 import dev.ikram.sandbox.feature.browser.components.CrashedPage
 import dev.ikram.sandbox.feature.browser.components.DownloadPromptSheet
+import dev.ikram.sandbox.feature.browser.components.DownloadToast
 import dev.ikram.sandbox.feature.browser.components.NewTabPage
 import dev.ikram.sandbox.feature.browser.components.TabSwitcherSheet
 import dev.ikram.sandbox.feature.browser.web.LocalWebViewPool
 import dev.ikram.sandbox.feature.browser.web.SandboxWebView
+import kotlinx.coroutines.delay
 
 @Composable
 fun BrowserRoute(
@@ -98,6 +104,18 @@ fun BrowserScreen(
             onEvent(BrowserEvent.MessageShown)
         }
     }
+    // A finished download's card stays a few seconds, then gives way to the next.
+    val download = state.download
+    LaunchedEffect(download) {
+        val holdMillis = when (download) {
+            null, is DownloadState.Running -> return@LaunchedEffect
+            is DownloadState.Cancelled -> 0L
+            is DownloadState.Completed -> SAVED_CARD_MILLIS
+            is DownloadState.Failed -> FAILED_CARD_MILLIS
+        }
+        delay(holdMillis)
+        onEvent(BrowserEvent.DownloadStatusDismissed(download.downloadId))
+    }
 
     Column(
         modifier = modifier
@@ -122,7 +140,16 @@ fun BrowserScreen(
                 tab.url == null -> NewTabPage()
                 else -> key(tab.id) { webContent(tab) }
             }
-            SnackbarHost(snackbarHostState, Modifier.align(Alignment.BottomCenter))
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+            ) {
+                if (download != null && download !is DownloadState.Cancelled) {
+                    DownloadToast(download = download, onView = onOpenVault)
+                }
+                SnackbarHost(snackbarHostState)
+            }
         }
     }
 
@@ -173,12 +200,27 @@ private fun BrowserToolbar(state: BrowserUiState, onEvent: (BrowserEvent) -> Uni
         )
         TabCountButton(count = state.tabs.size, onClick = { onEvent(BrowserEvent.ShowTabs) })
         IconButton(onClick = onOpenVault) {
-            Icon(
-                SandboxIcons.Vault,
-                stringResource(R.string.browser_open_vault),
-                tint = MaterialTheme.colorScheme.primary,
-            )
+            VaultIconWithBadge(state.newFiles, stringResource(R.string.browser_open_vault))
         }
+    }
+}
+
+/** The vault shield, with the number of files saved since the vault was last opened. */
+@Composable
+fun VaultIconWithBadge(newFiles: Int, contentDescription: String?, tint: Color = MaterialTheme.colorScheme.primary) {
+    BadgedBox(
+        badge = {
+            if (newFiles > 0) {
+                Badge(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Text(newFiles.coerceAtMost(MAX_SHOWN_TABS).toString())
+                }
+            }
+        },
+    ) {
+        Icon(SandboxIcons.Vault, contentDescription = contentDescription, tint = tint)
     }
 }
 
@@ -204,11 +246,12 @@ private fun TabCountButton(count: Int, onClick: () -> Unit) {
 }
 
 private const val MAX_SHOWN_TABS = 99
+private const val SAVED_CARD_MILLIS = 4_000L
+private const val FAILED_CARD_MILLIS = 6_000L
 
 private fun BrowserMessage.text(): Int = when (this) {
     BrowserMessage.NAVIGATION_BLOCKED -> R.string.browser_message_navigation_blocked
     BrowserMessage.DOWNLOAD_UNSUPPORTED -> R.string.browser_message_download_unsupported
-    BrowserMessage.SAVING_NOT_READY -> R.string.browser_message_saving_not_ready
 }
 
 @Preview(showBackground = true)

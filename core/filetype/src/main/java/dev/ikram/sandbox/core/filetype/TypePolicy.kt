@@ -90,6 +90,14 @@ object TypePolicy {
 
     fun isScriptExtension(extension: String?): Boolean = extension in SCRIPT_EXTENSIONS
 
+    /** Packages a system would install, as opposed to programs and scripts it would run. */
+    private val APP_INSTALLERS = setOf(
+        DetectedType.APK, DetectedType.APKS, DetectedType.XAPK, DetectedType.AAB, DetectedType.APPX,
+        DetectedType.IPA, DetectedType.MSI, DetectedType.LINUX_PACKAGE, DetectedType.CRX,
+    )
+
+    fun isAppInstaller(type: DetectedType?): Boolean = type in APP_INSTALLERS
+
     /**
      * True when the bytes and the claimed type disagree in a way worth a warning: a
      * different category. A PNG named .jpg is not a mismatch; an app named .mp4 is.

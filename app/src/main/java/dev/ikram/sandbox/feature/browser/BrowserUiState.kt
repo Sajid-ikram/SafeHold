@@ -1,6 +1,7 @@
 package dev.ikram.sandbox.feature.browser
 
 import dev.ikram.sandbox.core.model.DownloadRequest
+import dev.ikram.sandbox.core.model.DownloadState
 import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.feature.browser.web.WebEvent
 
@@ -10,6 +11,10 @@ data class BrowserUiState(
     val downloadPrompt: DownloadPrompt? = null,
     val message: BrowserMessage? = null,
     val showTabSwitcher: Boolean = false,
+    /** The latest download, running or just finished, for the progress card. */
+    val download: DownloadState? = null,
+    /** Files saved since the vault was last opened. */
+    val newFiles: Int = 0,
 ) {
     val activeTab: BrowserTab get() = tabs.first { it.id == activeTabId }
 }
@@ -43,9 +48,6 @@ data class DownloadPrompt(
 enum class BrowserMessage {
     NAVIGATION_BLOCKED,
     DOWNLOAD_UNSUPPORTED,
-
-    /** Build phase 3 only: saving arrives with the vault in phase 4. */
-    SAVING_NOT_READY,
 }
 
 sealed interface BrowserEvent {
@@ -73,6 +75,9 @@ sealed interface BrowserEvent {
     data object ConfirmDownload : BrowserEvent
 
     data object DismissDownload : BrowserEvent
+
+    /** The progress card for a finished download has been shown long enough. */
+    data class DownloadStatusDismissed(val downloadId: String) : BrowserEvent
 
     data object MessageShown : BrowserEvent
 

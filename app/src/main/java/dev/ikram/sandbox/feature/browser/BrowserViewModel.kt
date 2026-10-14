@@ -3,10 +3,11 @@ package dev.ikram.sandbox.feature.browser
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ikram.sandbox.core.data.download.DownloadQueue
+import dev.ikram.sandbox.core.data.download.NewFilesCounter
 import dev.ikram.sandbox.core.filetype.ClaimedType
 import dev.ikram.sandbox.core.filetype.DownloadFileName
 import dev.ikram.sandbox.core.filetype.TypePolicy
-import dev.ikram.sandbox.core.model.DetectedType
 import dev.ikram.sandbox.core.model.DownloadRequest
 import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.feature.browser.web.WebCommand
@@ -23,19 +24,27 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
-class BrowserViewModel @Inject constructor() : ViewModel() {
+class BrowserViewModel @Inject constructor(private val downloadQueue: DownloadQueue, newFiles: NewFilesCounter) :
+    ViewModel() {
     private val tabManager = TabManager()
     private val overlay = MutableStateFlow(Overlay())
     private val commandChannel = Channel<WebCommand>(Channel.UNLIMITED)
     private var hostGeneration: String? = null
 
-    val uiState: StateFlow<BrowserUiState> = combine(tabManager.tabs, overlay) { tabs, overlay ->
+    val uiState: StateFlow<BrowserUiState> = combine(
+        tabManager.tabs,
+        overlay,
+        downloadQueue.downloads,
+        newFiles.count,
+    ) { tabs, overlay, downloads, newFileCount ->
         BrowserUiState(
             tabs = tabs.list,
             activeTabId = tabs.activeId,
             downloadPrompt = overlay.downloadPrompt,
             message = overlay.message,
             showTabSwitcher = overlay.showTabSwitcher,
+            download = downloads.lastOrNull(),
+            newFiles = newFileCount,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -77,11 +86,14 @@ class BrowserViewModel @Inject constructor() : ViewModel() {
 
             BrowserEvent.HideTabs -> overlay.update { it.copy(showTabSwitcher = false) }
 
-            BrowserEvent.ConfirmDownload -> overlay.update {
-                it.copy(downloadPrompt = null, message = BrowserMessage.SAVING_NOT_READY)
+            BrowserEvent.ConfirmDownload -> {
+                overlay.value.downloadPrompt?.let { downloadQueue.enqueue(it.request) }
+                overlay.update { it.copy(downloadPrompt = null) }
             }
 
             BrowserEvent.DismissDownload -> overlay.update { it.copy(downloadPrompt = null) }
+
+            is BrowserEvent.DownloadStatusDismissed -> downloadQueue.dismiss(event.downloadId)
 
             BrowserEvent.MessageShown -> overlay.update { it.copy(message = null) }
 
@@ -176,18 +188,13 @@ class BrowserViewModel @Inject constructor() : ViewModel() {
     companion object {
         private const val COMPLETE = 100
 
-        private val APP_TYPES = setOf(
-            DetectedType.APK, DetectedType.APKS, DetectedType.XAPK, DetectedType.AAB, DetectedType.APPX,
-            DetectedType.IPA, DetectedType.MSI, DetectedType.LINUX_PACKAGE, DetectedType.CRX,
-        )
-
         fun promptFor(request: DownloadRequest): DownloadPrompt {
             val fileName = DownloadFileName.resolve(request.url, request.contentDisposition, request.mimeType)
             val claimed = ClaimedType.of(fileName, request.mimeType)
             val category = claimed?.let(TypePolicy::categoryOf) ?: FileCategory.UNKNOWN
             val kind = when {
                 category != FileCategory.BLOCKED -> DownloadPrompt.Kind.SAVE
-                claimed in APP_TYPES -> DownloadPrompt.Kind.BLOCKED_APP
+                TypePolicy.isAppInstaller(claimed) -> DownloadPrompt.Kind.BLOCKED_APP
                 else -> DownloadPrompt.Kind.BLOCKED_PROGRAM
             }
             return DownloadPrompt(

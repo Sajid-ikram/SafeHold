@@ -25,7 +25,6 @@
     <string name="browser_crashed_reload">Reload page</string>
     <string name="browser_message_navigation_blocked">Blocked a link that tried to leave the browser</string>
     <string name="browser_message_download_unsupported">This download type isn\'t supported yet</string>
-    <string name="browser_message_saving_not_ready">Saving to the vault arrives in the next build phase</string>
 
     <string name="tabs_title">Tabs</string>
     <string name="tabs_new">New tab</string>
@@ -50,8 +49,107 @@
     <string name="download_cancel_download">Cancel download</string>
 
     <string name="vault_title">Vault</string>
+    <string name="vault_locked">Files in the vault are locked</string>
+    <string name="vault_list_view">List view</string>
+    <string name="vault_grid_view">Grid view</string>
+    <string name="vault_search_hint">Search your vault</string>
+    <string name="vault_search_clear">Clear search</string>
+    <string name="vault_filter_all">All</string>
+    <string name="vault_filter_images">Images</string>
+    <string name="vault_filter_videos">Videos</string>
+    <string name="vault_filter_audio">Audio</string>
+    <string name="vault_filter_pdfs">PDFs</string>
+    <string name="vault_filter_text">Text</string>
+    <string name="vault_filter_archives">Archives</string>
+    <string name="vault_filter_blocked">Blocked</string>
+    <string name="vault_section_today">Today</string>
+    <string name="vault_section_yesterday">Yesterday</string>
     <string name="vault_empty_title">Your vault is empty</string>
-    <string name="vault_empty_message">Files you download while browsing are kept here, locked away from the rest of your phone.</string>
+    <string name="vault_empty_message">Files you download will show up here, locked and ready to view safely.</string>
+    <string name="vault_empty_action">Start browsing</string>
+    <string name="vault_no_match_title">Nothing matches</string>
+    <string name="vault_no_match_message">Try another search or filter.</string>
+    <string name="vault_item_meta">%1$s · %2$s · %3$s</string>
+    <string name="vault_card_meta">%1$s · %2$s</string>
+    <string name="vault_saving">Saving · %1$s of %2$s</string>
+    <string name="vault_saving_unknown_total">Saving · %1$s</string>
+    <string name="vault_cancel_download">Cancel download</string>
+    <string name="vault_message_share_not_ready">Sharing arrives in a later build phase</string>
+    <string name="vault_message_deleted">Deleted %1$s</string>
+    <string name="vault_message_hash_copied">SHA-256 copied</string>
+
+    <string name="badge_safe">Safe to view</string>
+    <string name="badge_text_only">View only as text</string>
+    <string name="badge_blocked">Blocked</string>
+    <string name="badge_details_only">Details only</string>
+    <string name="badge_open_failed">Couldn\'t open safely</string>
+
+    <string name="details_real_type">Real file type</string>
+    <string name="details_matches">· matches .%1$s</string>
+    <string name="details_named">· named .%1$s</string>
+    <string name="details_real_type_hint">Detected from the file\'s contents, not its name</string>
+    <string name="details_size">Size</string>
+    <string name="details_downloaded">Downloaded</string>
+    <string name="details_source">Source</string>
+    <string name="details_sha256">SHA256</string>
+    <string name="details_copy_hash">Copy hash</string>
+    <string name="details_open">Open</string>
+    <string name="details_share">Share</string>
+    <string name="details_delete">Delete</string>
+    <string name="details_blocked_app">App installers stay locked in your vault. They can\'t be opened, installed or shared from SafeHold.</string>
+    <string name="details_blocked_program">Programs and scripts stay locked in your vault. They can\'t be opened, run or shared from SafeHold.</string>
+    <string name="details_unknown">SafeHold couldn\'t tell what this file is, so it stays locked. It can\'t be opened or shared.</string>
+    <string name="details_archive">Archives and documents like this can\'t be opened inside SafeHold yet.</string>
+    <string name="details_open_failed">This file couldn\'t be opened safely, so SafeHold won\'t try again.</string>
+    <string name="details_mismatch">Named like %1$s, but it\'s really %2$s.</string>
+
+    <string name="delete_title">Delete %1$s?</string>
+    <string name="delete_message">It\'s removed from your vault for good.</string>
+    <string name="delete_confirm">Delete</string>
+    <string name="delete_cancel">Cancel</string>
+
+    <string name="mismatch_title">This file isn\'t what it says</string>
+    <string name="mismatch_body_blocked">“%1$s” is named like %2$s, but it\'s really %3$s. Files like this are often used to trick people.</string>
+    <string name="mismatch_body_safe">“%1$s” is named like %2$s, but it\'s really %3$s. SafeHold opens it as what it really is.</string>
+    <string name="mismatch_name_says">Name says</string>
+    <string name="mismatch_actually">It\'s actually</string>
+    <string name="mismatch_locked">We\'ve locked it. It stays in your vault and can\'t be opened or shared.</string>
+    <string name="mismatch_delete">Delete file</string>
+    <string name="mismatch_keep_locked">Keep it locked</string>
+    <string name="mismatch_open_anyway">Open anyway</string>
+
+    <string name="category_noun_image">an image</string>
+    <string name="category_noun_video">a video</string>
+    <string name="category_noun_audio">audio</string>
+    <string name="category_noun_pdf">a PDF</string>
+    <string name="category_noun_text">a text file</string>
+    <string name="category_noun_archive">an archive or document</string>
+    <string name="category_noun_blocked">an app or program</string>
+    <string name="category_noun_unknown">an unknown kind of file</string>
+    <string name="category_label_image">Image</string>
+    <string name="category_label_video">Video</string>
+    <string name="category_label_audio">Audio</string>
+    <string name="category_label_pdf">PDF</string>
+    <string name="category_label_text">Text</string>
+    <string name="category_label_archive">Archive</string>
+    <string name="category_label_blocked">App or program</string>
+    <string name="category_label_unknown">Unknown</string>
+
+    <string name="download_toast_saving">Saving %1$s</string>
+    <string name="download_toast_progress">%1$s of %2$s · into your vault</string>
+    <string name="download_toast_progress_unknown">%1$s · into your vault</string>
+    <string name="download_toast_saved">Saved %1$s</string>
+    <string name="download_toast_saved_body">In your vault, ready to view safely</string>
+    <string name="download_toast_saved_locked_body">Locked in your vault</string>
+    <string name="download_toast_failed">Couldn\'t save %1$s</string>
+    <string name="download_toast_view">View</string>
+    <string name="download_failure_network">The connection dropped.</string>
+    <string name="download_failure_http">The site wouldn\'t send the file.</string>
+    <string name="download_failure_too_large">It\'s larger than the 2 GB limit.</string>
+    <string name="download_failure_timeout">The site took too long to answer.</string>
+    <string name="download_failure_storage">Your phone is out of space.</string>
+    <string name="download_failure_insecure">SafeHold only downloads over secure (https) connections.</string>
+    <string name="download_failure_unknown">Something went wrong.</string>
 
     <string name="settings_title">Settings</string>
     <string name="settings_how_protection_works">How protection works</string>
