@@ -162,10 +162,10 @@
     <string name="explainer_title">How protection works</string>
     <string name="explainer_placeholder">The full explainer arrives in build phase 10.</string>
 
-    <string name="viewer_placeholder">This viewer arrives in a later build phase.</string>
     <string name="viewer_opened_in_sandbox">Opened in sandbox</string>
     <string name="viewer_share">Share</string>
     <string name="viewer_details">File details</string>
+    <string name="viewer_find">Find in text</string>
     <string name="viewer_previous">Previous image</string>
     <string name="viewer_next">Next image</string>
     <string name="viewer_zoom">%1$.1f×</string>
@@ -185,6 +185,45 @@
     <string name="viewer_pdf_unreadable_message">It may be damaged, or protected with a password.</string>
     <string name="viewer_missing_title">This file is gone</string>
     <string name="viewer_missing_message">It may have been deleted.</string>
+
+    <string name="media_unplayable_title">This file can\'t be played</string>
+    <string name="media_unplayable_message">It may be damaged, or in a format your phone can\'t play.</string>
+    <string name="media_play">Play</string>
+    <string name="media_pause">Pause</string>
+    <string name="media_seek_back">Back 10 seconds</string>
+    <string name="media_seek_forward">Forward 10 seconds</string>
+    <string name="media_fullscreen">Full screen</string>
+    <string name="media_exit_fullscreen">Exit full screen</string>
+    <string name="media_volume">Volume</string>
+    <string name="media_speed">Playback speed %1$s</string>
+    <string name="media_position">Playback position</string>
+    <string name="media_time">%1$s / %2$s</string>
+    <string name="media_video_meta">%1$s · %2$s · %3$s</string>
+    <string name="media_audio_meta">%1$s · %2$s</string>
+    <string name="media_saved_today">Saved today</string>
+    <string name="media_saved_yesterday">Saved yesterday</string>
+    <string name="media_saved_on">Saved %1$s</string>
+    <string name="media_video">Video</string>
+    <string name="media_video_quality">Video · %1$dp</string>
+    <string name="media_picture_and_sound_only">Only the picture and sound play here. Anything else tucked inside the file is ignored.</string>
+    <string name="media_share">Share</string>
+    <string name="media_details">Details</string>
+
+    <string name="text_plain_note">Shown as plain text. Nothing in it can run.</string>
+    <string name="text_truncated">Showing the first %1$s of %2$s.</string>
+    <string name="text_unreadable_title">This file can\'t be shown</string>
+    <string name="text_unreadable_message">SafeHold couldn\'t read it as text.</string>
+    <string name="text_wrap_lines">Wrap lines</string>
+    <string name="text_line_numbers">Line numbers</string>
+    <string name="text_smaller">Smaller text</string>
+    <string name="text_larger">Larger text</string>
+    <string name="text_find_hint">Find in text</string>
+    <string name="text_find_close">Close find</string>
+    <string name="text_find_previous">Previous match</string>
+    <string name="text_find_next">Next match</string>
+    <string name="text_find_none">No matches</string>
+    <string name="text_find_position">%1$d of %2$d</string>
+    <string name="text_find_position_capped">%1$d of %2$d+</string>
 
     <string name="action_back">Back</string>
 </resources>

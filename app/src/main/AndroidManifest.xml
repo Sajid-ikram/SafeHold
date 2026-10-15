@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
         Golden rule 1: these three and nothing else. The verify<Variant>Permissions task
@@ -8,6 +9,19 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
+    <!--
+        Media3 ExoPlayer asks for these two; neither is needed to play a local file.
+        Without ACCESS_NETWORK_STATE its bandwidth meter reads the network as unknown
+        (it catches the SecurityException), and the player never takes a wake lock
+        because SafeHold leaves its wake mode at the default, none.
+    -->
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.WAKE_LOCK"
+        tools:node="remove" />
 
     <!-- Golden rule 8: no cloud backup and no device-to-device transfer of anything. -->
     <application

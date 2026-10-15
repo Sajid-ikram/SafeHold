@@ -20,15 +20,16 @@ import androidx.compose.ui.unit.dp
 import dev.ikram.sandbox.R
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
 
-/** Every viewer's top bar: back, the file name over "Opened in sandbox", share and details. */
+/** Every viewer's top bar: back, the file name over "Opened in sandbox", then find or share, and details. */
 @Composable
 fun ViewerTopBar(
     title: String,
     onBack: () -> Unit,
-    onShare: () -> Unit,
+    onShare: (() -> Unit)?,
     onDetails: () -> Unit,
     modifier: Modifier = Modifier,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
+    onFind: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -55,8 +56,15 @@ fun ViewerTopBar(
             )
             SandboxIndicator()
         }
-        IconButton(onClick = onShare) {
-            Icon(SandboxIcons.Share, stringResource(R.string.viewer_share), tint = contentColor)
+        if (onFind != null) {
+            IconButton(onClick = onFind) {
+                Icon(SandboxIcons.Search, stringResource(R.string.viewer_find), tint = contentColor)
+            }
+        }
+        if (onShare != null) {
+            IconButton(onClick = onShare) {
+                Icon(SandboxIcons.Share, stringResource(R.string.viewer_share), tint = contentColor)
+            }
         }
         IconButton(onClick = onDetails) {
             Icon(SandboxIcons.Info, stringResource(R.string.viewer_details), tint = contentColor)

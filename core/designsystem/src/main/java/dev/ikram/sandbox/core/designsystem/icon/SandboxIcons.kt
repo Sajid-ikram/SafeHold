@@ -82,6 +82,16 @@ object SandboxIcons {
         )
     }
     val ScanCheck by lazy { icon("ScanCheck", circle(11f, 11f, 7f), "m20 20-3.5-3.5M8 11l2 2 4-4") }
+    val ChevronUp by lazy { icon("ChevronUp", "m6 15 6-6 6 6") }
+
+    // Media controls
+    val Play by lazy { icon("Play", "M8 5.5v13l10.5-6.5L8 5.5Z", strokeWidth = 2f, filled = true) }
+    val Pause by lazy { icon("Pause", "M9 5v14M15 5v14", strokeWidth = 2.6f) }
+    val SeekBack by lazy { icon("SeekBack", "M4 12a8 8 0 1 0 2.34-5.66M4 4v5h5") }
+    val SeekForward by lazy { icon("SeekForward", "M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5") }
+    val Fullscreen by lazy { icon("Fullscreen", "M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5") }
+    val ExitFullscreen by lazy { icon("ExitFullscreen", "M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5") }
+    val Volume by lazy { icon("Volume", "M11 5 6 9H3v6h3l5 4V5ZM15.5 9a4 4 0 0 1 0 6M18.5 6a8 8 0 0 1 0 12") }
 
     // File types
     val Image by lazy { icon("Image", rect(3f, 4f, 18f, 16f, 2f), circle(9f, 10f, 2f), "m21 16-5-5-9 9") }
@@ -98,7 +108,12 @@ object SandboxIcons {
         icon("Unknown", DOCUMENT, "M14 3v5h5", "M10 12a2 2 0 1 1 2.5 1.9c-.4.2-.5.5-.5.9V15M12 18h.01")
     }
 
-    private fun icon(name: String, vararg paths: String, strokeWidth: Float = 1.8f): ImageVector = ImageVector.Builder(
+    private fun icon(
+        name: String,
+        vararg paths: String,
+        strokeWidth: Float = 1.8f,
+        filled: Boolean = false,
+    ): ImageVector = ImageVector.Builder(
         name = name,
         defaultWidth = 24.dp,
         defaultHeight = 24.dp,
@@ -108,7 +123,7 @@ object SandboxIcons {
         paths.forEach { path ->
             addPath(
                 pathData = addPathNodes(path),
-                fill = null,
+                fill = if (filled) SolidColor(GraphicsColor.Black) else null,
                 stroke = SolidColor(GraphicsColor.Black),
                 strokeLineWidth = strokeWidth,
                 strokeLineCap = StrokeCap.Round,

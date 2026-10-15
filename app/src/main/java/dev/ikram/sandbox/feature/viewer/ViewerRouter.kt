@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -20,7 +19,9 @@ import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.feature.viewer.components.UnsafeFileMessage
 import dev.ikram.sandbox.feature.viewer.components.ViewerMessage
 import dev.ikram.sandbox.feature.viewer.image.ImageViewerRoute
+import dev.ikram.sandbox.feature.viewer.media.MediaViewerRoute
 import dev.ikram.sandbox.feature.viewer.pdf.PdfViewerRoute
+import dev.ikram.sandbox.feature.viewer.text.TextViewerRoute
 
 /**
  * Picks the built in viewer for a vault file from its category, and refuses blocked,
@@ -49,15 +50,13 @@ fun ViewerRouter(
 
                 file.category == FileCategory.PDF -> PdfViewerRoute(onBack = onBack, modifier = modifier)
 
-                else -> Plain(onBack, modifier) {
-                    ViewerMessage(
-                        icon = SandboxIcons.Clock,
-                        title = file.displayName,
-                        message = stringResource(R.string.viewer_placeholder),
-                        container = MaterialTheme.colorScheme.secondaryContainer,
-                        content = MaterialTheme.colorScheme.onSecondaryContainer,
-                    )
-                }
+                file.category == FileCategory.VIDEO || file.category == FileCategory.AUDIO ->
+                    MediaViewerRoute(onBack = onBack, modifier = modifier)
+
+                file.category == FileCategory.TEXT -> TextViewerRoute(onBack = onBack, modifier = modifier)
+
+                // Every openable category has a viewer above; anything else is refused.
+                else -> Refusal(onBack, modifier, missing = false)
             }
         }
     }

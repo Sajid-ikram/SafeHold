@@ -59,7 +59,7 @@ class DisguisedFileTest {
 
     @Test fun rightToLeftOverrideTrick() {
         // Displays as "photoexe.jpg"; the real extension is .exe, and the bytes agree.
-        val result = classify(Fixtures.peExe(), "photo‮gpj.exe")
+        val result = classify(Fixtures.peExe(), "photo\u202Egpj.exe")
         assertEquals(DetectedType.PE_EXE, result.detectedType)
         assertEquals(DetectedType.PE_EXE, result.claimedType)
         assertEquals(FileCategory.BLOCKED, result.category)

@@ -19,4 +19,23 @@ class FormattersTest {
 
     @Test
     fun usesTheLocaleDecimalSeparator() = assertEquals("2,4 MB", Formatters.size(2_400_000, Locale.GERMANY))
+
+    @Test
+    fun durations() {
+        assertEquals("00:00", Formatters.duration(0, Locale.US))
+        assertEquals("00:00", Formatters.duration(-500, Locale.US))
+        assertEquals("04:12", Formatters.duration(252_999, Locale.US))
+        assertEquals("59:59", Formatters.duration(3_599_000, Locale.US))
+        assertEquals("1:02:03", Formatters.duration(3_723_000, Locale.US))
+    }
+
+    @Test
+    fun speeds() {
+        assertEquals("1×", Formatters.speed(1f, Locale.US))
+        assertEquals("1.25×", Formatters.speed(1.25f, Locale.US))
+        assertEquals("1.5×", Formatters.speed(1.5f, Locale.US))
+        assertEquals("0.75×", Formatters.speed(0.75f, Locale.US))
+        assertEquals("1,5×", Formatters.speed(1.5f, Locale.GERMANY))
+        assertEquals("2×", Formatters.speed(2f, Locale.GERMANY))
+    }
 }

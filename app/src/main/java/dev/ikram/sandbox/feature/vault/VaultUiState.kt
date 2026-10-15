@@ -30,6 +30,14 @@ sealed interface DayLabel {
     data object Yesterday : DayLabel
 
     data class Day(val date: LocalDate) : DayLabel
+
+    companion object {
+        fun of(date: LocalDate, today: LocalDate): DayLabel = when (date) {
+            today -> Today
+            today.minusDays(1) -> Yesterday
+            else -> Day(date)
+        }
+    }
 }
 
 data class VaultSection(val label: DayLabel, val files: List<VaultFile>)

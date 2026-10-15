@@ -140,7 +140,7 @@ class VaultViewModel @Inject constructor(
         val sections = visible
             .groupBy { it.createdAt.atZone(clock.zone).toLocalDate() }
             .toSortedMap(reverseOrder())
-            .map { (date, dayFiles) -> VaultSection(labelFor(date, today), dayFiles) }
+            .map { (date, dayFiles) -> VaultSection(DayLabel.of(date, today), dayFiles) }
         fun byId(id: String?) = id?.let { wanted -> files.firstOrNull { it.id == wanted } }
         return VaultUiState(
             today = today,
@@ -157,12 +157,6 @@ class VaultViewModel @Inject constructor(
             message = controls.message,
             thumbnails = thumbnails,
         )
-    }
-
-    private fun labelFor(date: LocalDate, today: LocalDate): DayLabel = when (date) {
-        today -> DayLabel.Today
-        today.minusDays(1) -> DayLabel.Yesterday
-        else -> DayLabel.Day(date)
     }
 
     private fun VaultFile.matches(query: String): Boolean {

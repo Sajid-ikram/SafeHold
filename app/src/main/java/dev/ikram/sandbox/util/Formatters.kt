@@ -34,6 +34,29 @@ object Formatters {
         .withZone(zone)
         .format(instant)
 
+    /** Playback times as players show them: "04:12", or "1:02:03" from an hour on. */
+    fun duration(millis: Long, locale: Locale = Locale.getDefault()): String {
+        val totalSeconds = millis.coerceAtLeast(0) / MILLIS_PER_SECOND
+        val hours = totalSeconds / SECONDS_PER_HOUR
+        val minutes = totalSeconds % SECONDS_PER_HOUR / SECONDS_PER_MINUTE
+        val seconds = totalSeconds % SECONDS_PER_MINUTE
+        return if (hours > 0) {
+            String.format(locale, "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format(locale, "%02d:%02d", minutes, seconds)
+        }
+    }
+
+    /** "1×", "1.25×", "0.75×". */
+    fun speed(speed: Float, locale: Locale = Locale.getDefault()): String {
+        val text = String.format(locale, "%.2f", speed).trimEnd('0').trimEnd('.', ',')
+        return "$text×"
+    }
+
+    private const val MILLIS_PER_SECOND = 1000L
+    private const val SECONDS_PER_MINUTE = 60L
+    private const val SECONDS_PER_HOUR = 3600L
+
     /** "12 Oct" this year, "12 Oct 2025" before it. */
     fun day(date: LocalDate, today: LocalDate, locale: Locale = Locale.getDefault()): String {
         val pattern = if (date.year == today.year) "d MMM" else "d MMM yyyy"

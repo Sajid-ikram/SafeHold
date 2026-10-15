@@ -14,7 +14,7 @@ object NameSanitizer {
 
     /**
      * Invisible characters that can disguise a name. The right-to-left override is the
-     * classic one: "photo‮gpj.exe" displays as "photoexe.jpg".
+     * classic one: "photo\u202Egpj.exe" displays as "photoexe.jpg".
      */
     private val INVISIBLE = Regex("[\\p{Cc}\\p{Cf}\\u2028\\u2029]")
     private val WHITESPACE = Regex("\\s+")

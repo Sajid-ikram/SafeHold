@@ -24,13 +24,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -53,9 +49,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.ikram.sandbox.R
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
-import dev.ikram.sandbox.feature.vault.FileDetailsSheet
 import dev.ikram.sandbox.feature.viewer.components.UnsafeFileMessage
 import dev.ikram.sandbox.feature.viewer.components.ViewerMessage
+import dev.ikram.sandbox.feature.viewer.components.ViewerOverlayActions
+import dev.ikram.sandbox.feature.viewer.components.ViewerOverlayState
+import dev.ikram.sandbox.feature.viewer.components.ViewerOverlays
 import dev.ikram.sandbox.feature.viewer.components.ViewerTopBar
 import dev.ikram.sandbox.feature.viewer.image.PageState
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -280,46 +278,22 @@ private fun Thumbnail(index: Int, image: ImageBitmap?, selected: Boolean, onClic
 
 @Composable
 private fun Overlays(state: PdfViewerUiState, onEvent: (PdfViewerEvent) -> Unit) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val shareText = stringResource(R.string.vault_message_share_not_ready)
-    LaunchedEffect(state.message) {
-        if (state.message != null) {
-            snackbarHostState.showSnackbar(shareText)
-            onEvent(PdfViewerEvent.MessageShown)
-        }
-    }
-    Box(modifier = Modifier.fillMaxSize().navigationBarsPadding(), contentAlignment = Alignment.BottomCenter) {
-        SnackbarHost(snackbarHostState)
-    }
-    val file = state.file ?: return
-    if (state.showDetails) {
-        FileDetailsSheet(
-            file = file,
-            onOpen = {},
+    ViewerOverlays(
+        state = ViewerOverlayState(
+            file = state.file,
+            showDetails = state.showDetails,
+            confirmDelete = state.confirmDelete,
+            message = state.message?.let { stringResource(R.string.vault_message_share_not_ready) },
+        ),
+        actions = ViewerOverlayActions(
             onShare = { onEvent(PdfViewerEvent.ShareTapped) },
             onDelete = { onEvent(PdfViewerEvent.DeleteTapped) },
-            onHashCopied = {},
-            onDismiss = { onEvent(PdfViewerEvent.DetailsDismissed) },
-            showOpen = false,
-        )
-    }
-    if (state.confirmDelete) {
-        AlertDialog(
-            onDismissRequest = { onEvent(PdfViewerEvent.DeleteDismissed) },
-            title = { Text(stringResource(R.string.delete_title, file.displayName)) },
-            text = { Text(stringResource(R.string.delete_message)) },
-            confirmButton = {
-                TextButton(onClick = { onEvent(PdfViewerEvent.DeleteConfirmed) }) {
-                    Text(stringResource(R.string.delete_confirm), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    onEvent(PdfViewerEvent.DeleteDismissed)
-                }) { Text(stringResource(R.string.delete_cancel)) }
-            },
-        )
-    }
+            onDeleteConfirmed = { onEvent(PdfViewerEvent.DeleteConfirmed) },
+            onDeleteDismissed = { onEvent(PdfViewerEvent.DeleteDismissed) },
+            onDetailsDismissed = { onEvent(PdfViewerEvent.DetailsDismissed) },
+            onMessageShown = { onEvent(PdfViewerEvent.MessageShown) },
+        ),
+    )
 }
 
 private fun ImageBitmap.ratio(): Float = width.toFloat() / height
