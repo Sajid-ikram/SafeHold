@@ -12,6 +12,8 @@ import dev.ikram.sandbox.core.data.di.DefaultDispatcher
 import dev.ikram.sandbox.core.data.di.IoDispatcher
 import dev.ikram.sandbox.core.data.download.DownloadQueue
 import dev.ikram.sandbox.core.data.download.VaultDownloader
+import dev.ikram.sandbox.feature.share.copy.ShareCopier
+import dev.ikram.sandbox.feature.share.copy.VaultShareCopier
 import dev.ikram.sandbox.feature.viewer.image.RenderedImages
 import dev.ikram.sandbox.feature.viewer.image.ThumbnailSource
 import dev.ikram.sandbox.feature.viewer.media.PlayerFactory
@@ -35,6 +37,9 @@ abstract class AppModule {
 
     @Binds
     abstract fun playerFactory(factory: VaultPlayerFactory): PlayerFactory
+
+    @Binds
+    abstract fun shareCopier(copier: VaultShareCopier): ShareCopier
 
     companion object {
         @Provides

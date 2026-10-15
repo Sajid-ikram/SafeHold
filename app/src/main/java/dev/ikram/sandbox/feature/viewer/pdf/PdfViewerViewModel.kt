@@ -38,11 +38,9 @@ data class PdfViewerUiState(
     val thumbnails: Map<Int, ImageBitmap> = emptyMap(),
     val showDetails: Boolean = false,
     val confirmDelete: Boolean = false,
-    val message: PdfViewerMessage? = null,
+    val sharing: Boolean = false,
     val closed: Boolean = false,
 )
-
-enum class PdfViewerMessage { SHARE_NOT_READY }
 
 sealed interface PdfViewerEvent {
     data class Viewport(val pageWidthPx: Int, val thumbnailWidthPx: Int) : PdfViewerEvent
@@ -64,7 +62,7 @@ sealed interface PdfViewerEvent {
 
     data object DeleteDismissed : PdfViewerEvent
 
-    data object MessageShown : PdfViewerEvent
+    data object ShareDismissed : PdfViewerEvent
 }
 
 /**
@@ -100,7 +98,7 @@ class PdfViewerViewModel @Inject constructor(
             thumbnails = thumbnails,
             showDetails = overlay.showDetails,
             confirmDelete = overlay.confirmDelete,
-            message = overlay.message,
+            sharing = overlay.sharing,
             closed = overlay.closed,
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, PdfViewerUiState())
@@ -132,7 +130,7 @@ class PdfViewerViewModel @Inject constructor(
 
             is PdfViewerEvent.ThumbnailsVisible -> wanted.update { it.copy(thumbnails = event.pages.toList()) }
 
-            PdfViewerEvent.ShareTapped -> overlay.update { it.copy(message = PdfViewerMessage.SHARE_NOT_READY) }
+            PdfViewerEvent.ShareTapped -> overlay.update { it.copy(sharing = true, showDetails = false) }
 
             PdfViewerEvent.DetailsTapped -> overlay.update { it.copy(showDetails = true) }
 
@@ -144,7 +142,7 @@ class PdfViewerViewModel @Inject constructor(
 
             PdfViewerEvent.DeleteDismissed -> overlay.update { it.copy(confirmDelete = false) }
 
-            PdfViewerEvent.MessageShown -> overlay.update { it.copy(message = null) }
+            PdfViewerEvent.ShareDismissed -> overlay.update { it.copy(sharing = false) }
         }
     }
 
@@ -201,7 +199,7 @@ class PdfViewerViewModel @Inject constructor(
     private data class Overlay(
         val showDetails: Boolean = false,
         val confirmDelete: Boolean = false,
-        val message: PdfViewerMessage? = null,
+        val sharing: Boolean = false,
         val closed: Boolean = false,
     )
 

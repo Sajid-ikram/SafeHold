@@ -62,6 +62,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.ikram.sandbox.R
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
 import dev.ikram.sandbox.core.designsystem.theme.SandboxTheme
+import dev.ikram.sandbox.feature.share.ShareSheet
 import dev.ikram.sandbox.feature.vault.components.DownloadCard
 import dev.ikram.sandbox.feature.vault.components.DownloadRow
 import dev.ikram.sandbox.feature.vault.components.VaultEmpty
@@ -145,6 +146,9 @@ fun VaultScreen(
             onHashCopied = { onEvent(VaultEvent.HashCopied) },
             onDismiss = { onEvent(VaultEvent.DetailsDismissed) },
         )
+    }
+    state.shareFileId?.let { fileId ->
+        ShareSheet(fileId = fileId, onDismiss = { onEvent(VaultEvent.ShareDismissed) })
     }
     state.mismatch?.let { file ->
         MismatchWarningDialog(
@@ -395,7 +399,6 @@ private fun VaultFilter.label(): Int = when (this) {
 
 @Composable
 private fun VaultMessage.text(): String = when (this) {
-    VaultMessage.ShareNotReady -> stringResource(R.string.vault_message_share_not_ready)
     VaultMessage.HashCopied -> stringResource(R.string.vault_message_hash_copied)
     is VaultMessage.Deleted -> stringResource(R.string.vault_message_deleted, name)
 }

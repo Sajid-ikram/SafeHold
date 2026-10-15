@@ -283,15 +283,15 @@ private fun Overlays(state: PdfViewerUiState, onEvent: (PdfViewerEvent) -> Unit)
             file = state.file,
             showDetails = state.showDetails,
             confirmDelete = state.confirmDelete,
-            message = state.message?.let { stringResource(R.string.vault_message_share_not_ready) },
+            sharing = state.sharing,
         ),
         actions = ViewerOverlayActions(
             onShare = { onEvent(PdfViewerEvent.ShareTapped) },
+            onShareDismissed = { onEvent(PdfViewerEvent.ShareDismissed) },
             onDelete = { onEvent(PdfViewerEvent.DeleteTapped) },
             onDeleteConfirmed = { onEvent(PdfViewerEvent.DeleteConfirmed) },
             onDeleteDismissed = { onEvent(PdfViewerEvent.DeleteDismissed) },
             onDetailsDismissed = { onEvent(PdfViewerEvent.DetailsDismissed) },
-            onMessageShown = { onEvent(PdfViewerEvent.MessageShown) },
         ),
     )
 }

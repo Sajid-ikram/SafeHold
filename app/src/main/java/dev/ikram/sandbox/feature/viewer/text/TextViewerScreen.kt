@@ -137,15 +137,15 @@ fun TextViewerScreen(
             file = state.file,
             showDetails = state.showDetails,
             confirmDelete = state.confirmDelete,
-            message = state.message?.let { stringResource(R.string.vault_message_share_not_ready) },
+            sharing = state.sharing,
         ),
         actions = ViewerOverlayActions(
             onShare = { onEvent(TextViewerEvent.ShareTapped) },
+            onShareDismissed = { onEvent(TextViewerEvent.ShareDismissed) },
             onDelete = { onEvent(TextViewerEvent.DeleteTapped) },
             onDeleteConfirmed = { onEvent(TextViewerEvent.DeleteConfirmed) },
             onDeleteDismissed = { onEvent(TextViewerEvent.DeleteDismissed) },
             onDetailsDismissed = { onEvent(TextViewerEvent.DetailsDismissed) },
-            onMessageShown = { onEvent(TextViewerEvent.MessageShown) },
         ),
     )
 }

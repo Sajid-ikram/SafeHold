@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -234,7 +235,7 @@ private fun Actions(
 ) {
     val rules = TypePolicy.rulesFor(file.category)
     val canOpen = rules.canOpen && !file.openFailed
-    val canShare = rules.canShareOriginal || rules.canSafeCopy
+    val canShare = (rules.canShareOriginal || rules.canSafeCopy) && !file.openFailed
     val locked = file.category == FileCategory.BLOCKED || file.category == FileCategory.UNKNOWN
     Row(modifier = Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         val buttonModifier = Modifier
@@ -245,7 +246,16 @@ private fun Actions(
                 ButtonContent(if (canOpen) SandboxIcons.Open else SandboxIcons.Lock, R.string.details_open)
             }
         }
-        FilledTonalButton(onClick = onShare, enabled = canShare, modifier = buttonModifier) {
+        // Still tappable when sharing is off, to say why; it only looks disabled.
+        val shareColors = if (canShare) {
+            ButtonDefaults.filledTonalButtonColors()
+        } else {
+            ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = LOCKED_CONTAINER_ALPHA),
+                contentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = LOCKED_CONTENT_ALPHA),
+            )
+        }
+        FilledTonalButton(onClick = onShare, colors = shareColors, modifier = buttonModifier) {
             ButtonContent(if (canShare) SandboxIcons.Share else SandboxIcons.Lock, R.string.details_share)
         }
         if (locked) {
@@ -297,3 +307,7 @@ private fun Mono(text: String, size: Float) {
 
 @Composable
 private fun Divider() = HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+/** Material's disabled look, for a button that stays tappable. */
+private const val LOCKED_CONTAINER_ALPHA = 0.12f
+private const val LOCKED_CONTENT_ALPHA = 0.38f

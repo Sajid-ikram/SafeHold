@@ -30,8 +30,6 @@ sealed interface PageState {
 }
 
 sealed interface ImageViewerMessage {
-    data object ShareNotReady : ImageViewerMessage
-
     data class Deleted(val name: String) : ImageViewerMessage
 }
 
@@ -43,6 +41,8 @@ data class ImageViewerUiState(
     val thumbnails: Map<String, ImageBitmap> = emptyMap(),
     val details: VaultFile? = null,
     val confirmDelete: VaultFile? = null,
+    /** The share sheet is open for this image. */
+    val sharing: VaultFile? = null,
     val message: ImageViewerMessage? = null,
     /** Nothing left to show (the last image was deleted). */
     val closed: Boolean = false,
@@ -54,7 +54,9 @@ sealed interface ImageViewerEvent {
 
     data class PageShown(val fileId: String) : ImageViewerEvent
 
-    data object ShareTapped : ImageViewerEvent
+    data class ShareTapped(val fileId: String) : ImageViewerEvent
+
+    data object ShareDismissed : ImageViewerEvent
 
     data class DetailsTapped(val fileId: String) : ImageViewerEvent
 
@@ -102,6 +104,7 @@ class ImageViewerViewModel @Inject constructor(
             thumbnails = thumbnails,
             details = byId(overlay.detailsId),
             confirmDelete = byId(overlay.deleteId),
+            sharing = byId(overlay.shareId),
             message = overlay.message,
             closed = images.isEmpty(),
         )
@@ -121,7 +124,9 @@ class ImageViewerViewModel @Inject constructor(
 
             is ImageViewerEvent.PageShown -> onPageShown(event.fileId)
 
-            ImageViewerEvent.ShareTapped -> overlay.update { it.copy(message = ImageViewerMessage.ShareNotReady) }
+            is ImageViewerEvent.ShareTapped -> overlay.update { it.copy(shareId = event.fileId, detailsId = null) }
+
+            ImageViewerEvent.ShareDismissed -> overlay.update { it.copy(shareId = null) }
 
             is ImageViewerEvent.DetailsTapped -> overlay.update { it.copy(detailsId = event.fileId) }
 
@@ -179,6 +184,7 @@ class ImageViewerViewModel @Inject constructor(
     private data class Overlay(
         val detailsId: String? = null,
         val deleteId: String? = null,
+        val shareId: String? = null,
         val message: ImageViewerMessage? = null,
     )
 

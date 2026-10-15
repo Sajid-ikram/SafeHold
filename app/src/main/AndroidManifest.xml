@@ -56,5 +56,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!--
+            Golden rule 3: the only way a file leaves SafeHold. Serves share_tmp/ alone
+            (res/xml/file_paths.xml), is not exported, and grants are read only and per
+            file, attached to one share intent at a time.
+        -->
+        <provider
+            android:name=".feature.share.ShareFileProvider"
+            android:authorities="${applicationId}.share"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

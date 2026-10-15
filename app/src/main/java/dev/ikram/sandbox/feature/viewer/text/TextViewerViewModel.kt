@@ -40,8 +40,6 @@ data class FindState(
     val capped: Boolean get() = matches.size >= TextSearch.MAX_MATCHES
 }
 
-enum class TextViewerMessage { SHARE_NOT_READY }
-
 data class TextViewerUiState(
     val file: VaultFile? = null,
     val content: TextContent = TextContent.Loading,
@@ -51,7 +49,7 @@ data class TextViewerUiState(
     val find: FindState = FindState(),
     val showDetails: Boolean = false,
     val confirmDelete: Boolean = false,
-    val message: TextViewerMessage? = null,
+    val sharing: Boolean = false,
     val closed: Boolean = false,
 )
 
@@ -86,7 +84,7 @@ sealed interface TextViewerEvent {
 
     data object DeleteDismissed : TextViewerEvent
 
-    data object MessageShown : TextViewerEvent
+    data object ShareDismissed : TextViewerEvent
 }
 
 @HiltViewModel
@@ -142,7 +140,7 @@ class TextViewerViewModel @Inject constructor(
 
             TextViewerEvent.PreviousMatch -> step(-1)
 
-            TextViewerEvent.ShareTapped -> state.update { it.copy(message = TextViewerMessage.SHARE_NOT_READY) }
+            TextViewerEvent.ShareTapped -> state.update { it.copy(sharing = true, showDetails = false) }
 
             TextViewerEvent.DetailsTapped -> state.update { it.copy(showDetails = true) }
 
@@ -154,7 +152,7 @@ class TextViewerViewModel @Inject constructor(
 
             TextViewerEvent.DeleteDismissed -> state.update { it.copy(confirmDelete = false) }
 
-            TextViewerEvent.MessageShown -> state.update { it.copy(message = null) }
+            TextViewerEvent.ShareDismissed -> state.update { it.copy(sharing = false) }
         }
     }
 

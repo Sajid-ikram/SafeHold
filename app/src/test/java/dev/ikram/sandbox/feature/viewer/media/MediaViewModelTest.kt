@@ -29,7 +29,6 @@ import java.time.ZoneOffset
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -233,7 +232,7 @@ class MediaViewModelTest {
         val viewModel = ViewModelProvider.create(store, viewModelFactory { initializer { viewModel(id) } })[
             MediaViewModel::class,
         ]
-        assertNull(viewModel.uiState.value.message)
+        assertFalse(viewModel.uiState.value.sharing)
         store.clear()
         verify { player.removeListener(listener.captured) }
         verify { player.release() }

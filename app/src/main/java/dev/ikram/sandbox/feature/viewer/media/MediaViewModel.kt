@@ -30,8 +30,6 @@ import kotlinx.coroutines.launch
 
 enum class PlaybackStatus { PREPARING, READY, ENDED, FAILED }
 
-enum class MediaMessage { SHARE_NOT_READY }
-
 data class MediaUiState(
     val file: VaultFile? = null,
     /** Drawn by the video surface. Null until the file has been looked up. */
@@ -52,7 +50,7 @@ data class MediaUiState(
     val today: LocalDate = LocalDate.MIN,
     val showDetails: Boolean = false,
     val confirmDelete: Boolean = false,
-    val message: MediaMessage? = null,
+    val sharing: Boolean = false,
     val closed: Boolean = false,
 ) {
     val showsVideo: Boolean get() = file?.category == FileCategory.VIDEO && hasVideo
@@ -91,7 +89,7 @@ sealed interface MediaEvent {
 
     data object DeleteDismissed : MediaEvent
 
-    data object MessageShown : MediaEvent
+    data object ShareDismissed : MediaEvent
 }
 
 /**
@@ -173,19 +171,35 @@ class MediaViewModel @Inject constructor(
     fun onEvent(event: MediaEvent) {
         when (event) {
             MediaEvent.PlayPause -> playPause()
+
             MediaEvent.SeekBack -> withPlayer { seekBack() }
+
             MediaEvent.SeekForward -> withPlayer { seekForward() }
+
             is MediaEvent.SeekTo -> withPlayer { seekTo(event.positionMs.coerceAtLeast(0)) }
+
             MediaEvent.CycleSpeed -> withPlayer { setPlaybackSpeed(nextSpeed(playbackParameters.speed)) }
+
             MediaEvent.ToggleFullscreen -> state.update { it.copy(fullscreen = !it.fullscreen && it.showsVideo) }
+
             MediaEvent.Backgrounded -> player?.pause()
-            MediaEvent.ShareTapped -> state.update { it.copy(message = MediaMessage.SHARE_NOT_READY) }
+
+            MediaEvent.ShareTapped -> {
+                player?.pause()
+                state.update { it.copy(sharing = true, showDetails = false) }
+            }
+
             MediaEvent.DetailsTapped -> state.update { it.copy(showDetails = true) }
+
             MediaEvent.DetailsDismissed -> state.update { it.copy(showDetails = false) }
+
             MediaEvent.DeleteTapped -> state.update { it.copy(confirmDelete = true) }
+
             MediaEvent.DeleteConfirmed -> delete()
+
             MediaEvent.DeleteDismissed -> state.update { it.copy(confirmDelete = false) }
-            MediaEvent.MessageShown -> state.update { it.copy(message = null) }
+
+            MediaEvent.ShareDismissed -> state.update { it.copy(sharing = false) }
         }
     }
 

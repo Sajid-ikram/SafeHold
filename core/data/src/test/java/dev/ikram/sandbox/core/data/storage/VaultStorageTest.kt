@@ -72,4 +72,17 @@ class VaultStorageTest {
         assertEquals(setOf(oldId), storage.earlierSessionIds())
         assertEquals(setOf(oldId, newId), storage.storedIds())
     }
+
+    @Test
+    fun shareFilesAreUuidsInShareTmp() {
+        val shared = storage.newShareFile("pdf")
+        assertEquals(File(root, "share_tmp"), shared.parentFile)
+        assertTrue(shared.name.matches(Regex("[0-9a-f-]{36}[.]pdf")))
+        assertTrue(storage.newShareFile("pdf") != shared)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun shareExtensionsAreOnlyEverOurOwn() {
+        storage.newShareFile("../vault/x")
+    }
 }

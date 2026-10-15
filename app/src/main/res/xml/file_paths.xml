@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!--
+        Golden rules 2 and 3: the one directory another app can ever be granted, and only
+        for reading, only through the share flow. Never the vault itself. The manifest
+        check fails the build if anything else appears here.
+    -->
+    <files-path
+        name="share"
+        path="share_tmp/" />
+</paths>

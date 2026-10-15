@@ -81,15 +81,15 @@ private fun MediaOverlays(state: MediaUiState, onEvent: (MediaEvent) -> Unit) {
             file = state.file,
             showDetails = state.showDetails,
             confirmDelete = state.confirmDelete,
-            message = state.message?.let { stringResource(R.string.vault_message_share_not_ready) },
+            sharing = state.sharing,
         ),
         actions = ViewerOverlayActions(
             onShare = { onEvent(MediaEvent.ShareTapped) },
+            onShareDismissed = { onEvent(MediaEvent.ShareDismissed) },
             onDelete = { onEvent(MediaEvent.DeleteTapped) },
             onDeleteConfirmed = { onEvent(MediaEvent.DeleteConfirmed) },
             onDeleteDismissed = { onEvent(MediaEvent.DeleteDismissed) },
             onDetailsDismissed = { onEvent(MediaEvent.DetailsDismissed) },
-            onMessageShown = { onEvent(MediaEvent.MessageShown) },
         ),
     )
 }

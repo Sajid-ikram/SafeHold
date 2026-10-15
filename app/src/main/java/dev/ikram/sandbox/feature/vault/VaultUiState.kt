@@ -43,8 +43,6 @@ sealed interface DayLabel {
 data class VaultSection(val label: DayLabel, val files: List<VaultFile>)
 
 sealed interface VaultMessage {
-    data object ShareNotReady : VaultMessage
-
     data object HashCopied : VaultMessage
 
     data class Deleted(val name: String) : VaultMessage
@@ -66,6 +64,8 @@ data class VaultUiState(
     val mismatch: VaultFile? = null,
     /** The file waiting for delete confirmation. */
     val confirmDelete: VaultFile? = null,
+    /** The share sheet is open for this file. */
+    val shareFileId: String? = null,
     val message: VaultMessage? = null,
     /** Previews of image files, decoded by the isolated renderer. */
     val thumbnails: Map<String, ImageBitmap> = emptyMap(),
@@ -88,6 +88,8 @@ sealed interface VaultEvent {
     data class OpenTapped(val fileId: String) : VaultEvent
 
     data class ShareTapped(val fileId: String) : VaultEvent
+
+    data object ShareDismissed : VaultEvent
 
     data class DeleteTapped(val fileId: String) : VaultEvent
 

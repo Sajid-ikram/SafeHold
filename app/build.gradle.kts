@@ -78,6 +78,11 @@ abstract class VerifyManifestTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val mergedManifest: RegularFileProperty
 
+    /** res/xml/file_paths.xml: what the share FileProvider may serve. */
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val filePaths: RegularFileProperty
+
     @get:Input
     abstract val applicationId: Property<String>
 
@@ -131,11 +136,38 @@ abstract class VerifyManifestTask : DefaultTask() {
                 renderer.getAttributeNS(androidNs, "process") != ":renderer" ->
                     add("RendererService must run in the :renderer process")
             }
+            // Golden rules 2 and 3: no provider is reachable from outside, and the share
+            // provider serves share_tmp/ and nothing else.
+            val providers = document.getElementsByTagName("provider")
+            val providerList = (0 until providers.length).map { providers.item(it) as Element }
+            providerList.forEach { provider ->
+                val name = provider.getAttributeNS(androidNs, "name")
+                if (provider.getAttributeNS(androidNs, "exported") != "false") add("$name must not be exported")
+            }
+            val share = providerList.firstOrNull { it.getAttributeNS(androidNs, "name").endsWith(".ShareFileProvider") }
+            val sharePaths = share?.getElementsByTagName("meta-data")?.let { list ->
+                (0 until list.length).map { list.item(it) as Element }
+                    .firstOrNull { it.getAttributeNS(androidNs, "name") == "android.support.FILE_PROVIDER_PATHS" }
+                    ?.getAttributeNS(androidNs, "resource")
+            }
+            if (share != null && sharePaths != "@xml/file_paths") add("ShareFileProvider must serve @xml/file_paths")
+            addAll(
+                checkFilePaths(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(filePaths.get().asFile)),
+            )
         }
         check(problems.isEmpty()) {
             "Merged manifest breaks the golden rules (see CLAUDE.md):\n" + problems.joinToString("\n") { " - $it" }
         }
         report.get().asFile.writeText(requested.sorted().joinToString("\n"))
+    }
+
+    private fun checkFilePaths(paths: org.w3c.dom.Document): List<String> {
+        val children = paths.documentElement.childNodes
+        val entries = (0 until children.length).map { children.item(it) }.filterIsInstance<Element>()
+        val onlyShareTmp = entries.size == 1 &&
+            entries[0].tagName == "files-path" &&
+            entries[0].getAttribute("path") == "share_tmp/"
+        return if (onlyShareTmp) emptyList() else listOf("file_paths.xml must expose share_tmp/ and nothing else")
     }
 }
 
@@ -147,6 +179,7 @@ androidComponents {
             description = "Checks the merged ${variant.name} manifest against the golden rules."
             mergedManifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
             applicationId.set(variant.applicationId)
+            filePaths.set(layout.projectDirectory.file("src/main/res/xml/file_paths.xml"))
             report.set(layout.buildDirectory.file("reports/manifest/${variant.name}-permissions.txt"))
         }
         tasks.matching { it.name == "assemble$variantName" }.configureEach { dependsOn(verify) }
@@ -169,6 +202,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui.compose)
+    implementation(libs.androidx.media3.transformer)
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)

@@ -61,6 +61,7 @@ import dev.ikram.sandbox.R
 import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
 import dev.ikram.sandbox.core.designsystem.theme.SandboxTheme
 import dev.ikram.sandbox.core.model.VaultFile
+import dev.ikram.sandbox.feature.share.ShareSheet
 import dev.ikram.sandbox.feature.vault.FileDetailsSheet
 import dev.ikram.sandbox.feature.viewer.components.SandboxIndicator
 import dev.ikram.sandbox.feature.viewer.components.UnsafeFileMessage
@@ -128,7 +129,7 @@ private fun ViewerContent(state: ImageViewerUiState, onEvent: (ImageViewerEvent)
         TopBar(
             file = current,
             onBack = onBack,
-            onShare = { onEvent(ImageViewerEvent.ShareTapped) },
+            onShare = { onEvent(ImageViewerEvent.ShareTapped(current.id)) },
             onDetails = { onEvent(ImageViewerEvent.DetailsTapped(current.id)) },
         )
         BoxWithConstraints(modifier = Modifier.weight(1f)) {
@@ -334,7 +335,6 @@ private fun Overlays(state: ImageViewerUiState, onEvent: (ImageViewerEvent) -> U
     val snackbarHostState = remember { SnackbarHostState() }
     val messageText = when (val message = state.message) {
         null -> null
-        ImageViewerMessage.ShareNotReady -> stringResource(R.string.vault_message_share_not_ready)
         is ImageViewerMessage.Deleted -> stringResource(R.string.vault_message_deleted, message.name)
     }
     LaunchedEffect(state.message) {
@@ -346,11 +346,14 @@ private fun Overlays(state: ImageViewerUiState, onEvent: (ImageViewerEvent) -> U
     Box(modifier = Modifier.fillMaxSize().navigationBarsPadding(), contentAlignment = Alignment.BottomCenter) {
         SnackbarHost(snackbarHostState)
     }
+    state.sharing?.let { file ->
+        ShareSheet(fileId = file.id, onDismiss = { onEvent(ImageViewerEvent.ShareDismissed) })
+    }
     state.details?.let { file ->
         FileDetailsSheet(
             file = file,
             onOpen = {},
-            onShare = { onEvent(ImageViewerEvent.ShareTapped) },
+            onShare = { onEvent(ImageViewerEvent.ShareTapped(file.id)) },
             onDelete = { onEvent(ImageViewerEvent.DeleteTapped(file.id)) },
             onHashCopied = {},
             onDismiss = { onEvent(ImageViewerEvent.DetailsDismissed) },

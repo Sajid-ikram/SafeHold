@@ -5,6 +5,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.IOException
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,8 +26,18 @@ class VaultStorage(private val root: File) {
 
     private val partialDir: File get() = File(vaultDir, PARTIAL)
 
-    /** Outgoing safe copies, shared through FileProvider (build phase 8). */
+    /** Outgoing copies, the only directory FileProvider exposes. Emptied an hour after each share. */
     val shareTmpDir: File get() = File(root, SHARE_TMP)
+
+    /**
+     * A new, empty file to share, named `<uuid>.<extension>`. The extension always comes
+     * from SafeHold's own type table, never from a server.
+     */
+    fun newShareFile(extension: String): File {
+        require(EXTENSION_PATTERN.matches(extension)) { "Unexpected extension" }
+        if (!shareTmpDir.isDirectory && !shareTmpDir.mkdirs()) throw IOException("Cannot create the share folder")
+        return File(shareTmpDir, "${UUID.randomUUID()}.$extension")
+    }
 
     fun fileFor(id: String): File = File(vaultDir, "${checkedId(id)}$EXTENSION")
 
@@ -76,6 +87,7 @@ class VaultStorage(private val root: File) {
         private const val PARTIAL = ".partial"
         private const val SHARE_TMP = "share_tmp"
         private const val EXTENSION = ".bin"
+        private val EXTENSION_PATTERN = Regex("^[a-z0-9]{1,5}$")
         private val UUID_PATTERN = Regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 
         fun isValidId(id: String): Boolean = UUID_PATTERN.matches(id)

@@ -72,7 +72,8 @@ class VaultViewModel @Inject constructor(
             is VaultEvent.FileTapped -> onFileTapped(event.fileId)
             VaultEvent.DetailsDismissed -> controls.update { it.copy(detailsId = null) }
             is VaultEvent.OpenTapped -> open(event.fileId)
-            is VaultEvent.ShareTapped -> controls.update { it.copy(message = VaultMessage.ShareNotReady) }
+            is VaultEvent.ShareTapped -> controls.update { it.copy(shareId = event.fileId, detailsId = null) }
+            VaultEvent.ShareDismissed -> controls.update { it.copy(shareId = null) }
             is VaultEvent.DeleteTapped -> controls.update { it.copy(deleteId = event.fileId) }
             VaultEvent.DeleteConfirmed -> controls.value.deleteId?.let(::delete)
             VaultEvent.DeleteDismissed -> controls.update { it.copy(deleteId = null) }
@@ -154,6 +155,7 @@ class VaultViewModel @Inject constructor(
             details = byId(controls.detailsId),
             mismatch = byId(controls.mismatchId),
             confirmDelete = byId(controls.deleteId),
+            shareFileId = controls.shareId,
             message = controls.message,
             thumbnails = thumbnails,
         )
@@ -174,6 +176,7 @@ class VaultViewModel @Inject constructor(
         val detailsId: String? = null,
         val mismatchId: String? = null,
         val deleteId: String? = null,
+        val shareId: String? = null,
         val message: VaultMessage? = null,
     )
 }

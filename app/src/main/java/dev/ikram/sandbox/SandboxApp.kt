@@ -9,6 +9,7 @@ import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.components.SingletonComponent
 import dev.ikram.sandbox.core.data.di.ApplicationScope
 import dev.ikram.sandbox.core.data.repository.VaultRepository
+import dev.ikram.sandbox.core.data.storage.TempShareCleaner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -23,14 +24,20 @@ class SandboxApp : Application() {
         super.onCreate()
         if (Process.isIsolated()) return
         val startup = EntryPointAccessors.fromApplication<StartupEntryPoint>(this)
-        // Before any download can start: clear what a killed process left behind.
-        startup.applicationScope().launch { startup.vaultRepository().reconcile() }
+        // Before any download can start: clear what a killed process left behind, and
+        // shared copies past their hour.
+        startup.applicationScope().launch {
+            startup.vaultRepository().reconcile()
+            startup.shareCleaner().sweep()
+        }
     }
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface StartupEntryPoint {
         fun vaultRepository(): VaultRepository
+
+        fun shareCleaner(): TempShareCleaner
 
         @ApplicationScope
         fun applicationScope(): CoroutineScope

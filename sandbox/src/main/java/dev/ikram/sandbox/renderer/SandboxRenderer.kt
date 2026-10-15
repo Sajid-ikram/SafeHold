@@ -20,6 +20,9 @@ import kotlinx.coroutines.withTimeout
 /** The renderer crashed, hung or misbehaved on a file. The file is treated as unsafe. */
 class RendererCrashedException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
+/** A rendered PDF page and the page's size in points (1/72 inch). */
+class RenderedPage(val bitmap: Bitmap, val widthPoints: Int, val heightPoints: Int)
+
 /**
  * The app's handle on the isolated renderer. Binds on demand, runs one call at a time,
  * times out every call, and restarts the renderer after any crash. A crash or timeout is
@@ -30,6 +33,9 @@ class SandboxRenderer(private val context: Context) {
     private companion object {
         /** More pages than any real document; a renderer claiming this many is misbehaving. */
         const val MAX_PDF_PAGES = 100_000
+
+        /** 200 inches, the largest page the PDF format allows. */
+        const val MAX_PAGE_POINTS = 14_400
     }
 
     private val mutex = Mutex()
@@ -60,12 +66,22 @@ class SandboxRenderer(private val context: Context) {
     }
 
     /** One page, [width] pixels wide (narrower if the page is very tall). Null if it cannot be drawn. */
-    suspend fun renderPdfPage(file: File, pageIndex: Int, width: Int): Bitmap? {
+    suspend fun renderPdfPage(file: File, pageIndex: Int, width: Int): Bitmap? =
+        renderPdfPageSized(file, pageIndex, width)?.bitmap
+
+    /** As [renderPdfPage], with the page's own size in points, for rebuilding the document. */
+    suspend fun renderPdfPageSized(file: File, pageIndex: Int, width: Int): RenderedPage? {
         require(pageIndex >= 0 && width in 1..RendererLimits.MAX_OUTPUT_SIDE) { "Page or width out of range" }
         val result = call { renderer -> open(file).use { fd -> renderer.renderPdfPage(fd, pageIndex, width) } }
             ?: return null
-        return SharedMemoryBitmap.toBitmap(result, width, RendererLimits.MAX_OUTPUT_SIDE)
-            ?: throw RendererCrashedException("The renderer returned a malformed page")
+        val pageWidth = result.sourceWidth
+        val pageHeight = result.sourceHeight
+        val bitmap = SharedMemoryBitmap.toBitmap(result, width, RendererLimits.MAX_OUTPUT_SIDE)
+        if (bitmap == null || pageWidth !in 1..MAX_PAGE_POINTS || pageHeight !in 1..MAX_PAGE_POINTS) {
+            bitmap?.recycle()
+            throw RendererCrashedException("The renderer returned a malformed page")
+        }
+        return RenderedPage(bitmap, pageWidth, pageHeight)
     }
 
     /** Vault files are only ever handed over read only. */
