@@ -1,5 +1,6 @@
 package dev.ikram.sandbox.renderer
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -51,6 +52,9 @@ internal object ImageDecoderImpl {
      * Cameras store pictures sideways and say so in EXIF; BitmapFactory ignores that.
      * Anything unreadable counts as upright.
      */
+    // The platform class, not androidx: this module stays free of dependencies, and only
+    // the orientation tag is read, which every supported version handles.
+    @SuppressLint("ExifInterface")
     private fun orientationOf(fd: FileDescriptor): Orientation = try {
         rewind(fd)
         Orientation.fromExif(

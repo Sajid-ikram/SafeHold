@@ -34,13 +34,14 @@ class VaultRepository @Inject constructor(
     suspend fun markOpenFailed(id: String) = withContext(io) { dao.markOpenFailed(id) }
 
     /**
-     * Brings disk and database back in step after the process died mid-download or
-     * mid-delete: drops half-written downloads, files nothing refers to, and rows whose
-     * file is gone. Only files from earlier processes are touched, so a download this
-     * process has already started is safe.
+     * Brings disk and database back in step after the process died mid-download,
+     * mid-delete or mid-lookup: drops half-written downloads, files nothing refers to and
+     * rows whose file is gone, and forgets lookups that never finished. Only files from
+     * earlier processes are touched, so a download this process has already started is safe.
      */
     suspend fun reconcile() = withContext(io) {
         storage.clearPartials()
+        dao.resetUnfinishedScans()
         val recorded = dao.ids().toSet()
         (storage.earlierSessionIds() - recorded).forEach(storage::delete)
         (recorded - storage.storedIds()).forEach { dao.delete(it) }

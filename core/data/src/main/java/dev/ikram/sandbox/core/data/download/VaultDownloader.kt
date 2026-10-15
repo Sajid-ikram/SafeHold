@@ -32,9 +32,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -62,6 +65,10 @@ class VaultDownloader @Inject constructor(
     @IoDispatcher private val io: CoroutineDispatcher,
 ) : DownloadQueue {
     private val states = MutableStateFlow<Map<String, DownloadState>>(emptyMap())
+    private val savedIds = MutableSharedFlow<String>(extraBufferCapacity = SAVED_BUFFER)
+
+    /** The id of each file as it lands in the vault. */
+    val saved: SharedFlow<String> = savedIds.asSharedFlow()
     private val jobs = ConcurrentHashMap<String, Job>()
 
     override val downloads: StateFlow<List<DownloadState>> = states
@@ -158,6 +165,7 @@ class VaultDownloader @Inject constructor(
             throw IOException("Could not record the file", error)
         }
         newFiles.increment()
+        savedIds.tryEmit(id)
         return DownloadState.Completed(id, name, id, classification.category)
     }
 
@@ -223,6 +231,9 @@ class VaultDownloader @Inject constructor(
     }
 
     private companion object {
+        /** Saved ids wait here if nobody is listening at that moment. */
+        const val SAVED_BUFFER = 64
+
         const val BUFFER_SIZE = 64 * 1024
         const val REPORT_INTERVAL_NANOS = 150_000_000L
     }

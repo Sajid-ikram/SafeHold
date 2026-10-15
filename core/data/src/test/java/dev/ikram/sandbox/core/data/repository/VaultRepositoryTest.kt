@@ -6,6 +6,7 @@ import dev.ikram.sandbox.core.data.storage.VaultStorage
 import dev.ikram.sandbox.core.model.DetectedType
 import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.core.model.ScanStatus
+import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -35,6 +36,8 @@ class VaultRepositoryTest {
         createdAtMillis = createdAt,
         scanStatus = "FLAGGED",
         scanFlaggedCount = 3,
+        scanEngineCount = 70,
+        scanCheckedAtMillis = 5_000,
         isMismatch = false,
         mismatchAcknowledged = false,
         openFailed = false,
@@ -56,7 +59,7 @@ class VaultRepositoryTest {
         val files = repository.files.first()
         assertEquals(listOf(newer, older), files.map { it.id })
         assertEquals(FileCategory.BLOCKED, files[1].category)
-        assertEquals(ScanStatus.Flagged(3), files[0].scanStatus)
+        assertEquals(ScanStatus.Flagged(3, 70, Instant.ofEpochMilli(5_000)), files[0].scanStatus)
     }
 
     @Test

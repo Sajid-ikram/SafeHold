@@ -32,6 +32,30 @@ class FakeVaultFileDao : VaultFileDao {
 
     override suspend fun markOpenFailed(id: String) = change(id) { it.copy(openFailed = true) }
 
+    override suspend fun updateScan(
+        id: String,
+        status: String,
+        flagged: Int?,
+        engines: Int?,
+        checkedAt: Long?,
+        error: String?,
+    ) = change(id) {
+        it.copy(
+            scanStatus = status,
+            scanFlaggedCount = flagged,
+            scanEngineCount = engines,
+            scanCheckedAtMillis = checkedAt,
+            scanError = error,
+        )
+    }
+
+    override suspend fun resetUnfinishedScans() = rows.update { list ->
+        list.map { if (it.scanStatus == "CHECKING") it.copy(scanStatus = "NOT_CHECKED") else it }
+    }
+
+    override suspend fun idsCreatedBefore(cutoffMillis: Long): List<String> =
+        rows.value.filter { it.createdAtMillis < cutoffMillis }.map { it.id }
+
     private fun change(id: String, transform: (VaultFileEntity) -> VaultFileEntity) =
         rows.update { list -> list.map { if (it.id == id) transform(it) else it } }
 }

@@ -21,6 +21,11 @@ coroutines = "1.11.0"
 room = "2.8.5"
 okhttp = "5.5.0"
 media3 = "1.11.1"
+datastore = "1.2.1"
+biometric = "1.1.0"
+fragment = "1.9.1"
+work = "2.12.0"
+retrofit = "3.0.0"
 
 junit = "4.13.2"
 turbine = "1.2.1"
@@ -72,6 +77,14 @@ androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", versi
 androidx-media3-ui-compose = { module = "androidx.media3:media3-ui-compose", version.ref = "media3" }
 # Re-encodes video and audio for safe copies.
 androidx-media3-transformer = { module = "androidx.media3:media3-transformer", version.ref = "media3" }
+
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
+androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }

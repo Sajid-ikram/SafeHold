@@ -9,7 +9,9 @@ import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.components.SingletonComponent
 import dev.ikram.sandbox.core.data.di.ApplicationScope
 import dev.ikram.sandbox.core.data.repository.VaultRepository
-import dev.ikram.sandbox.core.data.storage.TempShareCleaner
+import dev.ikram.sandbox.core.data.scan.AutoScan
+import dev.ikram.sandbox.core.data.work.AutoDeleteWorker
+import dev.ikram.sandbox.core.data.work.VaultCleaner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -24,12 +26,15 @@ class SandboxApp : Application() {
         super.onCreate()
         if (Process.isIsolated()) return
         val startup = EntryPointAccessors.fromApplication<StartupEntryPoint>(this)
-        // Before any download can start: clear what a killed process left behind, and
-        // shared copies past their hour.
-        startup.applicationScope().launch {
+        val scope = startup.applicationScope()
+        // Before any download can start: clear what a killed process left behind, then
+        // expired files and shared copies past their hour.
+        scope.launch {
             startup.vaultRepository().reconcile()
-            startup.shareCleaner().sweep()
+            startup.vaultCleaner().clean()
         }
+        scope.launch { startup.autoScan().run() }
+        AutoDeleteWorker.schedule(this)
     }
 
     @EntryPoint
@@ -37,7 +42,9 @@ class SandboxApp : Application() {
     interface StartupEntryPoint {
         fun vaultRepository(): VaultRepository
 
-        fun shareCleaner(): TempShareCleaner
+        fun vaultCleaner(): VaultCleaner
+
+        fun autoScan(): AutoScan
 
         @ApplicationScope
         fun applicationScope(): CoroutineScope

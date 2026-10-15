@@ -2,7 +2,10 @@ package dev.ikram.sandbox.feature.browser.web
 
 import android.content.Context
 import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.WebStorage
 import android.webkit.WebView
+import android.webkit.WebViewDatabase
 import androidx.compose.runtime.staticCompositionLocalOf
 import java.util.UUID
 
@@ -46,6 +49,31 @@ class WebViewPool(private val context: Context) {
 
     fun destroyAll() {
         views.keys.toList().forEach(::destroy)
+    }
+
+    /** History, cache, cookies, site storage and saved logins, for every tab. The vault is not touched. */
+    fun clearBrowsingData(onDone: () -> Unit) {
+        views.values.forEach { view ->
+            view.clearHistory()
+            view.clearFormData()
+        }
+        // The cache is shared by every WebView; with no tab open, a passing one clears it.
+        val existing = views.values.firstOrNull()
+        if (existing != null) {
+            existing.clearCache(true)
+        } else {
+            WebView(context).apply {
+                clearCache(true)
+                destroy()
+            }
+        }
+        WebStorage.getInstance().deleteAllData()
+        WebViewDatabase.getInstance(context).clearHttpAuthUsernamePassword()
+        val cookies = CookieManager.getInstance()
+        cookies.removeAllCookies {
+            cookies.flush()
+            onDone()
+        }
     }
 
     private fun destroy(tabId: String) {

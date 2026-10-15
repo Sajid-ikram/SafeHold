@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.ikram.sandbox.core.data.download.DownloadQueue
 import dev.ikram.sandbox.core.data.download.NewFilesCounter
+import dev.ikram.sandbox.core.data.settings.SettingsRepository
 import dev.ikram.sandbox.core.filetype.ClaimedType
 import dev.ikram.sandbox.core.filetype.DownloadFileName
 import dev.ikram.sandbox.core.filetype.TypePolicy
@@ -19,13 +20,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
-class BrowserViewModel @Inject constructor(private val downloadQueue: DownloadQueue, newFiles: NewFilesCounter) :
-    ViewModel() {
+class BrowserViewModel @Inject constructor(
+    private val downloadQueue: DownloadQueue,
+    newFiles: NewFilesCounter,
+    settings: SettingsRepository,
+) : ViewModel() {
+    /** "Ask before every download"; on until settings say otherwise. */
+    private val askFirst: StateFlow<Boolean> = settings.settings.map { it.askBeforeDownload }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     private val tabManager = TabManager()
     private val overlay = MutableStateFlow(Overlay())
     private val commandChannel = Channel<WebCommand>(Channel.UNLIMITED)
@@ -149,7 +158,12 @@ class BrowserViewModel @Inject constructor(private val downloadQueue: DownloadQu
             overlay.update { it.copy(message = BrowserMessage.DOWNLOAD_UNSUPPORTED) }
             return
         }
-        overlay.update { it.copy(downloadPrompt = promptFor(request)) }
+        if (askFirst.value) {
+            overlay.update { it.copy(downloadPrompt = promptFor(request)) }
+        } else {
+            // Straight into the vault: the bytes are still checked, and blocked files still locked.
+            downloadQueue.enqueue(request)
+        }
     }
 
     /** A new pool (the activity was recreated) has blank WebViews: reload every tab that had a page. */

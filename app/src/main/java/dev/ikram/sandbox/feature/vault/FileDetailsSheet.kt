@@ -49,6 +49,7 @@ import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.core.model.VaultFile
 import dev.ikram.sandbox.feature.vault.components.BadgeTone
 import dev.ikram.sandbox.feature.vault.components.FileStatusBadge
+import dev.ikram.sandbox.feature.vault.components.VirusTotalRow
 import dev.ikram.sandbox.feature.vault.components.noun
 import dev.ikram.sandbox.util.Formatters
 import kotlinx.coroutines.launch
@@ -81,6 +82,7 @@ fun FileDetailsSheet(
             Header(file)
             Notice(file)
             FactsCard(file, onHashCopied)
+            VirusTotalRow(file)
             Actions(file, showOpen, onOpen, onShare, onDelete)
         }
     }

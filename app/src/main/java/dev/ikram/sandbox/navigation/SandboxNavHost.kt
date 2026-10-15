@@ -34,6 +34,7 @@ import dev.ikram.sandbox.core.designsystem.icon.SandboxIcons
 import dev.ikram.sandbox.feature.browser.BrowserRoute
 import dev.ikram.sandbox.feature.browser.VaultIconWithBadge
 import dev.ikram.sandbox.feature.explainer.HowProtectionWorksRoute
+import dev.ikram.sandbox.feature.lock.BiometricGate
 import dev.ikram.sandbox.feature.onboarding.OnboardingRoute
 import dev.ikram.sandbox.feature.settings.SettingsRoute
 import dev.ikram.sandbox.feature.vault.VaultRoute
@@ -90,10 +91,12 @@ fun SandboxNavHost(
                 BrowserRoute(onOpenVault = { navController.navigateToTopLevel(Routes.Vault) })
             }
             composable<Routes.Vault> {
-                VaultRoute(
-                    onOpenFile = { fileId -> navController.navigate(Routes.Viewer(fileId)) },
-                    onStartBrowsing = { navController.navigateToTopLevel(Routes.Browser) },
-                )
+                BiometricGate {
+                    VaultRoute(
+                        onOpenFile = { fileId -> navController.navigate(Routes.Viewer(fileId)) },
+                        onStartBrowsing = { navController.navigateToTopLevel(Routes.Browser) },
+                    )
+                }
             }
             composable<Routes.Settings> {
                 SettingsRoute(onHowProtectionWorks = { navController.navigate(Routes.HowProtectionWorks) })
@@ -102,7 +105,7 @@ fun SandboxNavHost(
                 HowProtectionWorksRoute(onBack = navController::popBackStack)
             }
             composable<Routes.Viewer> {
-                ViewerRouter(onBack = navController::popBackStack)
+                BiometricGate { ViewerRouter(onBack = navController::popBackStack) }
             }
         }
     }

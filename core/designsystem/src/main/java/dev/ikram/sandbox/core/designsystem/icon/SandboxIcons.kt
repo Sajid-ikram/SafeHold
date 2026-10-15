@@ -83,6 +83,8 @@ object SandboxIcons {
     }
     val ScanCheck by lazy { icon("ScanCheck", circle(11f, 11f, 7f), "m20 20-3.5-3.5M8 11l2 2 4-4") }
     val ChevronUp by lazy { icon("ChevronUp", "m6 15 6-6 6 6") }
+    val NotChecked by lazy { icon("NotChecked", circle(12f, 12f, 9f), "M8 12h8") }
+    val Key by lazy { icon("Key", circle(7.5f, 15.5f, 5.5f), "m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3") }
 
     // Media controls
     val Play by lazy { icon("Play", "M8 5.5v13l10.5-6.5L8 5.5Z", strokeWidth = 2f, filled = true) }

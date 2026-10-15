@@ -3,12 +3,15 @@ package dev.ikram.sandbox.feature.browser
 import app.cash.turbine.test
 import dev.ikram.sandbox.MainDispatcherRule
 import dev.ikram.sandbox.core.data.download.NewFilesCounter
+import dev.ikram.sandbox.core.data.settings.SettingsRepository
 import dev.ikram.sandbox.core.model.DownloadRequest
 import dev.ikram.sandbox.core.model.DownloadState
 import dev.ikram.sandbox.core.model.FileCategory
 import dev.ikram.sandbox.fakes.FakeDownloadQueue
+import dev.ikram.sandbox.fakes.FakePreferencesStore
 import dev.ikram.sandbox.feature.browser.web.WebCommand
 import dev.ikram.sandbox.feature.browser.web.WebEvent
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -23,7 +26,8 @@ class BrowserViewModelTest {
     // Lazy: the rule must install the test Main dispatcher before viewModelScope starts.
     private val queue = FakeDownloadQueue()
     private val newFiles = NewFilesCounter()
-    private val viewModel by lazy { BrowserViewModel(queue, newFiles) }
+    private val settings = SettingsRepository(FakePreferencesStore())
+    private val viewModel by lazy { BrowserViewModel(queue, newFiles, settings) }
     private val state get() = viewModel.uiState.value
     private val tabId get() = state.activeTabId
 
@@ -89,6 +93,15 @@ class BrowserViewModelTest {
         assertEquals(DownloadPrompt.Kind.SAVE, prompt.kind)
         assertEquals("harbourlight.org", prompt.sourceHost)
         assertEquals(2_400_000L, prompt.sizeBytes)
+    }
+
+    @Test
+    fun withAskingOffDownloadsGoStraightToTheVault() {
+        runBlocking { settings.setAskBeforeDownload(false) }
+        val request = download("https://harbourlight.org/files/north-coast-map.pdf")
+        web(WebEvent.DownloadRequested(request))
+        assertNull(state.downloadPrompt)
+        assertEquals(listOf(request), queue.enqueued)
     }
 
     @Test
