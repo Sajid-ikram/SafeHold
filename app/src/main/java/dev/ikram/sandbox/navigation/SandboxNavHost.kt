@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -59,6 +60,10 @@ fun SandboxNavHost(
     shell: ShellViewModel = hiltViewModel(),
 ) {
     val newFiles by shell.newFiles.collectAsStateWithLifecycle()
+    val onboardingDone by shell.onboardingDone.collectAsStateWithLifecycle()
+    // Nothing until settings are read (a moment, under the splash screen). The start is
+    // fixed then: changing it later would reset the whole back stack.
+    val start = onboardingDone?.let { done -> remember { if (done) Routes.Browser else Routes.Onboarding } } ?: return
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
     // Hidden while typing, so the screen above can shrink to fit beside the keyboard.
@@ -79,13 +84,19 @@ fun SandboxNavHost(
     ) { padding ->
         NavHost(
             navController = navController,
-            startDestination = Routes.Browser,
+            startDestination = start,
             modifier = Modifier
                 .padding(padding)
                 .consumeWindowInsets(padding),
         ) {
             composable<Routes.Onboarding> {
-                OnboardingRoute(onDone = { navController.navigateToTopLevel(Routes.Browser) })
+                OnboardingRoute(
+                    onDone = {
+                        navController.navigate(Routes.Browser) {
+                            popUpTo<Routes.Onboarding> { inclusive = true }
+                        }
+                    },
+                )
             }
             composable<Routes.Browser> {
                 BrowserRoute(onOpenVault = { navController.navigateToTopLevel(Routes.Vault) })

@@ -43,8 +43,11 @@ fun ZoomableImage(
         onZoomChange(scale)
     }
 
-    val transformState = rememberTransformableState { zoomChange, panChange, _ ->
-        apply(scale * zoomChange, offset + panChange)
+    // Zooms around the point between the fingers, not the middle of the picture.
+    val transformState = rememberTransformableState { centroid, zoomChange, panChange, _ ->
+        val newScale = (scale * zoomChange).coerceIn(MIN_ZOOM, MAX_ZOOM)
+        val focus = centroid - Offset(size.width / 2f, size.height / 2f)
+        apply(newScale, (offset - focus) * (newScale / scale) + focus + panChange)
     }
 
     Image(

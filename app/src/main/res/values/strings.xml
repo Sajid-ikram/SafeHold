@@ -222,10 +222,42 @@
 
     <string name="onboarding_title">Browse the web as usual</string>
     <string name="onboarding_message">Search, read and download files like you would in any other browser. SafeHold quietly handles the rest.</string>
+    <string name="onboarding_vault_title">Downloads stay in your vault</string>
+    <string name="onboarding_vault_message">Every file you download is kept inside SafeHold. It never lands in your phone\'s storage, and nothing can run it.</string>
+    <string name="onboarding_share_title">Share a safe copy</string>
+    <string name="onboarding_share_message">When you share, SafeHold makes a fresh copy and leaves hidden data behind. The original stays locked away.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_skip">Skip</string>
     <string name="onboarding_start">Start browsing</string>
+    <string name="onboarding_step">Step %1$d of %2$d</string>
+    <string name="onboarding_phone_storage">Phone storage</string>
+    <string name="onboarding_other_apps">Other apps</string>
+    <string name="onboarding_location">Location</string>
+    <string name="onboarding_hidden_data">Hidden data</string>
+    <string name="onboarding_original">Original</string>
+    <string name="onboarding_safe_copy">Safe copy</string>
 
     <string name="explainer_title">How protection works</string>
-    <string name="explainer_placeholder">The full explainer arrives in build phase 10.</string>
+    <string name="explainer_website">Website</string>
+    <string name="explainer_download">Download</string>
+    <string name="explainer_inside">INSIDE SAFEHOLD</string>
+    <string name="explainer_vault">Vault</string>
+    <string name="explainer_viewer">Viewer</string>
+    <string name="explainer_viewer_note">Shows the file. Can\'t run it.</string>
+    <string name="explainer_no_way_through">No way through</string>
+    <string name="explainer_rest_of_phone">THE REST OF YOUR PHONE</string>
+    <string name="explainer_shared_storage">Shared storage</string>
+    <string name="explainer_app_installer">App installer</string>
+    <string name="explainer_point_storage_title">Private storage.</string>
+    <string name="explainer_point_storage">Files live in SafeHold\'s own app storage, which Android keeps apart from other apps and your shared folders.</string>
+    <string name="explainer_point_type_title">Real type check.</string>
+    <string name="explainer_point_type">We read the first bytes of each file to learn what it really is, so a renamed installer can\'t pass as a video.</string>
+    <string name="explainer_point_viewers_title">Display only viewers.</string>
+    <string name="explainer_point_viewers">Pictures and documents are opened in a separate, locked-down part of the app with no internet and no access to your files. Nothing in a file can run.</string>
+    <string name="explainer_point_copies_title">Safe copies.</string>
+    <string name="explainer_point_copies">Shared files are rebuilt from what the viewer decoded, so metadata and malformed parts are left behind.</string>
+    <string name="explainer_browsing_title">What it doesn\'t do.</string>
+    <string name="explainer_browsing">Web pages open in the same engine Chrome uses, so browsing itself is no safer than in Chrome. SafeHold protects the files you download.</string>
 
     <string name="viewer_opened_in_sandbox">Opened in sandbox</string>
     <string name="viewer_share">Share</string>
